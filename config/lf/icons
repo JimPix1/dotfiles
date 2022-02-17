@@ -1,0 +1,177 @@
+# vimft	conf
+# Icons for lf
+
+# default values from lf (with matching order)
+# ln      l       # LINK
+# or      l       # ORPHAN
+# tw      t       # STICKY_OTHER_WRITABLE
+# ow      d       # OTHER_WRITABLE
+# st      t       # STICKY
+# di      d       # DIR
+# pi      p       # FIFO
+# so      s       # SOCK
+# bd      b       # BLK
+# cd      c       # CHR
+# su      u       # SETUID
+# sg      g       # SETGID
+# ex      x       # EXEC
+# fi      -       # FILE
+
+# file types (with matching order)
+fi	📃	# FILE
+di	📂	# DIR
+tw	🤝	# STICKY_OTHER_WRITABLE
+ow	📂	# OTHER WRITABLE
+ln     "⛓ "  	# LINK
+or	❌	# ORPHAN
+ex	🎯	# EXEC
+su      🙏      # SETUID
+pi      📥      # FIFO
+bd      💽      # BLK
+so      "🖥️ "   # SOCK
+st      💄      # STICKY
+
+# file extensions
+*.txt	       "✍ "
+*.mom	       "✍ "
+*.me	       "✍ "
+*.ms	       "✍ "
+*.gpg		🔒
+*.log		📙
+*.bib		🎓
+*.ged		👪
+*.iso		📀
+*.img		📀
+*.part		💔
+*.torrent	🔽
+# file extensions (images)
+*.png	       "🖼 "
+*.PNG	       "🖼 "
+*.webp	       "🖼 "
+*.tiff	       "🖼 "
+*.ico	       "🖼 "
+*.jpg		📸
+*.JPG		📸
+*.jpe		📸
+*.jpeg		📸
+*.mjpg		📸
+*.mjpeg 	📸
+*.gif	       "🖼 "
+*.svg	       "🗺 "
+*.tif	       "🖼 "
+*.tiff	       "🖼 "
+*.xcf	       "🖌 "
+# file extensions (documents)
+*.pdf		📚
+*.djvu		📚
+*.epub		📚
+*.csv		📓
+*.xlsx		📓
+*.tex		📜
+# file extensions (vim-devicons)
+*.r		📊
+*.R		📊
+*.rmd		📊
+*.Rmd		📊
+*.m		📊
+*.css		🎨
+*.scss		🎨
+*.html		🌎
+*.xml		📰
+## markdown
+*.md		📘
+*.md            📘
+*.mdx           📘
+*.markdown      📘
+*.rmd           📘
+# file extensions (music)
+*.mp3		🎵
+*.opus		🎵
+*.ogg		🎵
+*.m4a		🎵
+*.flac		🎼
+*.wav		🎼
+*.aac   	🎵
+*.au    	🎵
+*.m4a   	🎵
+*.mid   	🎵
+*.midi  	🎵
+*.mka   	🎵
+*.mpc   	🎵
+*.ra    	🎵
+*.oga   	🎵
+*.spx   	🎵
+*.xspf  	🎵
+# file extensions (video)
+*.mkv		🎥
+*.mp4		🎥
+*.webm		🎥
+*.mpeg		🎥
+*.avi		🎥
+*.mov		🎥
+*.mpg		🎥
+*.wmv		🎥
+*.m4b		🎥
+*.flv		🎥
+# archives or compressed
+*.zip		📦
+*.rar		📦
+*.7z		📦
+*.tar.gz	📦
+*.tar   	📦
+*.zpaq   	📦
+*.tgz   	📦
+*.arc   	📦
+*.arj   	📦
+*.taz   	📦
+*.lha   	📦
+*.lz4   	📦
+*.lzh   	📦
+*.lzma  	📦
+*.tlz   	📦
+*.txz   	📦
+*.tzo   	📦
+*.t7z   	📦
+*.z     	📦
+*.dz    	📦
+*.gz    	📦
+*.lrz   	📦
+*.lz    	📦
+*.lzo   	📦
+*.xz    	📦
+*.zst   	📦
+*.tzst  	📦
+*.bz2   	📦
+*.bz    	📦
+*.tbz   	📦
+*.tbz2  	📦
+*.tz    	📦
+*.deb   	📦
+*.rpm   	📦
+*.war   	📦
+*.ear   	📦
+*.sar   	📦
+*.alz   	📦
+*.ace   	📦
+*.zoo   	📦
+*.cpio  	📦
+*.rz    	📦
+*.cab   	📦
+*.wim   	📦
+*.swm   	📦
+*.dwm   	📦
+*.esd   	📦
+# file extensions (games)
+*.z64		🎮
+*.v64		🎮
+*.n64		🎮
+*.gba		🎮
+*.nes		🎮
+*.gdi		🎮
+# file extensions (docs)
+*.1	       "ℹ "
+*.nfo	       "ℹ "
+*.info	       "ℹ "
+# file extensions (java)
+*.jar	       "♨ "
+*.java	       "♨ "

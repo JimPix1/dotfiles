@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# Check when the laptop lid is closed and lock accordingly
+
+# Constants
+LID=/proc/acpi/button/lid/LID/state
+STATE=/sys/class/power_supply/BAT0/status
+KBDBL=/sys/class/leds/tpacpi::kbd_backlight/brightness
+
+while true; do
+	# Save the keyboard backlight value
+	# to a file if the lid is open
+  	if grep -q open "$LID"; then
+	   cat "$KBDBL" > /tmp/kb_backlight_brightness
+	fi
+  # Check if the lid is closed
+  if grep -q closed "$LID"; then
+	# If battery is discharging then lock and suspend
+	if grep -q 'Discharging' "$STATE"; then
+	   slock systemctl --no-wall suspend
+	   # Restore the keyboard backlight value
+	   cat /tmp/kb_backlight_brightness > "$KBDBL"
+	# If battery is full or charging then lock
+	else slock
+	     # Restore the keyboard backlight value
+	     cat /tmp/kb_backlight_brightness > "$KBDBL"
+  	fi
+  fi
+    sleep 1.5
+done

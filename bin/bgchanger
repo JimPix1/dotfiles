@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Change the wallpaper automatically every so often using feh
+
+# The location of all your wallpapers
+WALLPAPERS="$HOME/pix/wallpapers/wallpapers-master"
+
+while true
+do
+    /usr/bin/feh \
+    --no-fehbg --randomize --bg-fill "$WALLPAPERS"
+    # How often the background should change
+    sleep 900 # 15 mins
+done

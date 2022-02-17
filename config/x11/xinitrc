@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# xinitrc runs automatically when you run startx.
+
+bgchanger &	           # Automatic background changing script
+lidwatcher &		   # Lock screen/suspend when lid is closed
+sxhkd -m 1 -r /dev/null &  # X hotkey daemon
+picom &			   # Compositor
+sensiscript &		   # Changes sensitivity of touchpad etc.
+xautolock -detectsleep &   # Autolock program (see Xresources)
+unclutter --start-hidden & # Hide the mouse cursor when idle
+dunst &			   # Notification manager
+clipmenud &		   # Clipboard manager for dmenu
+/usr/lib/mate-polkit/polkit-mate-authentication-agent-1 & 	   # Authentication Manager
+source /etc/X11/xinit/xinitrc.d/50-systemd-user.sh		   # Keyring stuff
+xrdb ${XDG_CONFIG_HOME:-$HOME/.config}/x11/xresources & xrdbpid=$! # Use Xresources settings
+
+# Ensure that xrdb has finished running before starting dwm
+[ -n "$xrdbpid" ] && wait "$xrdbpid"
+
+# Start dwm
+exec dwm

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# A dmenu prompt to enter a website and open it in the browser
+
+# Entering the website url.
+website="$(:|dmenu -p 'Enter Website URL:')" || exit
+
+# Display website in web browser
+$BROWSER "$website"

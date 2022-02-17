@@ -1,0 +1,65 @@
+#!/bin/sh
+
+# Choose the type of screenshot to take using maim
+# Dependencies: dmenu, maim, tee, xdotool, xclip
+
+# Specifying a directory to save our screenshots.
+SCROTDIR="$HOME/pix/.screenshots"
+# Makes sure the directory exists.
+mkdir -p "${SCROTDIR}"
+
+# An array of options to choose.
+options='fullscreen (copy)
+active window (save)
+selected region (save)
+fullscreen (save and copy)
+active window (save and copy)
+selected region (save and copy)
+fullscreen (save)'
+
+LINES="$("$options" | wc -l)"
+# Piping the above array into dmenu.
+choice=$(printf '%s\n' "${options}" | dmenu -i -l 12 -h 24 -bw 2 -c -p 'Screenshot mode:')
+
+# What to do when/if we choose one of the options.
+case "$choice" in
+	'fullscreen (save)')
+		sleep 0.05; maim -u -f png "$SCROTDIR/maim-full-$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png
+		notify-send "📸 Screenshot saved!"
+	;;
+        'active window (save)')
+		sleep 0.05; maim -u -i -f png "$(xdotool getactivewindow)" "$SCROTDIR"/maim-window-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png
+		notify-send "📸 Screenshot saved!"
+	;;
+        'selected region (save)')
+		sleep 0.05; maim -s -b 2 -u -f png "$SCROTDIR"/maim-region-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png
+		notify-send "📸 Screenshot saved!"
+	;;
+	'fullscreen (copy)')
+ 		sleep 0.05; maim -u -f png | \
+		xclip -selection clipboard -t image/png
+		notify-send "📸 Screenshot copied!"
+	;;
+	'fullscreen (save and copy)')
+		sleep 0.05; maim -u -f png "$SCROTDIR/maim-full-$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png | \
+ 		xclip -selection clipboard -t image/png
+		notify-send "📸 Screenshot saved and copied!"
+	;;
+	'active window (save and copy)')
+		sleep 0.05; maim -u -i -f png "$(xdotool getactivewindow)" | \
+		tee "$SCROTDIR"/maim-window-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png | \
+		xclip -selection clipboard -t image/png
+		notify-send "📸 Screenshot saved and copied!"
+	;;
+	'selected region (save and copy)')
+		sleep 0.05; maim -u -s -b 2 -f png | \
+		tee "$SCROTDIR"/maim-region-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png | \
+		xclip -selection clipboard -t image/png
+		notify-send "📸 Screenshot saved and copied!"
+	;;
+    # It is a common practice to use the wildcard asterisk symbol (*) as a final
+    # pattern to define the default case. This pattern will always match.
+	*)
+		exit 1
+	;;
+esac

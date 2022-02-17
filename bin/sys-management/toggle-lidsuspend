@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Toggle suspending when the lid is closed
+
+if [ -n "$(pgrep 'lidwatcher-')" ]; then
+	# Enable lid suspend
+ 	killall lidwatcher-no-suspend lidwatcher
+	lidwatcher &
+	notify-send "💻 Lid suspend enabled!"
+else
+	# Disable lid suspend
+ 	killall lidwatcher-no-suspend lidwatcher
+	lidwatcher-no-suspend &
+	notify-send "💻 Lid suspend disabled!"
+fi

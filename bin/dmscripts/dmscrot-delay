@@ -1,0 +1,95 @@
+#!/bin/sh
+
+# Choose the type of screenshot to take using maim and choose a delay.
+# Dependencies: dmenu, maim, tee, xdotool, xclip
+
+# Specifying a directory to save our screenshots.
+SCROTDIR="$HOME/pix/.screenshots"
+# Makes sure the directory exists.
+mkdir -p "${SCROTDIR}"
+
+# An array of options to choose.
+options='selected region (copy)
+fullscreen (copy)
+active window (copy)
+selected region (save)
+fullscreen (save)
+active window (save)
+selected region (save and copy)
+fullscreen (save and copy)
+active window (save and copy)'
+
+# Piping the above array into dmenu.
+choice=$(printf '%s\n' "${options}" | dmenu -i -l 12 -h 24 -bw 2 -c -p 'Screenshot (delay):') || exit 1
+
+# Delay prompt using dmenu
+delay=$(printf '%s\n' "$(seq 1 6)" | dmenu -l 3 -g 2 -i -p 'Delay (in seconds):' "$@" ) || exit 1
+
+# What to do when/if we choose one of the options.
+case "$choice" in
+	'fullscreen (save)')
+		if [ ! "${delay}" -eq "0" ]; then
+	    	maim --delay="${delay}" -u -f png "$SCROTDIR"/maim-full-"$('date +%Y-%m-%d-%H-%Mm-%Ss')".png
+		notify-send "📸 Screenshot saved!"
+		fi
+	;;
+        'active window (save)')
+		if [ ! "${delay}" -eq "0" ]; then
+		maim --delay="${delay}" -u -f png -i "$(xdotool getactivewindow)" "$SCROTDIR"/maim-window-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png
+		notify-send "📸 Screenshot saved!"
+		fi
+	;;
+        'selected region (save)')
+		if [ ! "${delay}" -eq "0" ]; then
+		maim --delay="${delay}" -s -b 2 -u -f png "$SCROTDIR"/maim-region-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png
+		notify-send "📸 Screenshot saved!"
+		fi
+	;;
+	'selected region (copy)')
+		if [ ! "${delay}" -eq "0" ]; then
+		maim -s -b 2 -u -f png --delay="${delay}" | \
+		xclip -selection clipboard -t image/png
+		notify-send "📸 Screenshot copied!"
+		fi
+	;;
+	'fullscreen (copy)')
+ 		maim -u -f png --delay="${delay}" | \
+		xclip -selection clipboard -t image/png
+		notify-send "📸 Screenshot copied!"
+	;;
+	'active window (copy)')
+		if [ ! "${delay}" -eq "0" ]; then
+		maim --delay="${delay}" -u -f png -i "$(xdotool getactivewindow)" | \
+		xclip -selection clipboard -t image/png
+		notify-send "📸 Screenshot copied!"
+		fi
+	;;
+	'fullscreen (save and copy)')
+		if [ ! "${delay}" -eq "0" ]; then
+		maim --delay="${delay}" -u -f png "$SCROTDIR"/maim-full-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png | \
+		xclip -selection clipboard -t image/png
+		notify-send "📸 Screenshot saved and copied!"
+		fi
+	;;
+	'active window (save and copy)')
+		if [ ! "${delay}" -eq "0" ]; then
+		maim -u -f png -i "$(xdotool getactivewindow)" --delay="${delay}" | \
+		tee "$SCROTDIR"/maim-region-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png | \
+		xclip -selection clipboard -t image/png
+		notify-send "📸 Screenshot saved and copied!"
+		fi
+	;;
+	'selected region (save and copy)')
+		if [ ! "${delay}" -eq "0" ]; then
+		maim -u -f png -s -b 2 --delay="${delay}" | \
+		tee "$SCROTDIR"/maim-region-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png | \
+		xclip -selection clipboard -t image/png
+		notify-send "📸 Screenshot saved and copied!"
+		fi
+	;;
+    # It is a common practice to use the wildcard asterisk symbol (*) as a final
+    # pattern to define the default case. This pattern will always match.
+	*)
+		exit 1
+	;;
+esac
