@@ -1,0 +1,4 @@
+# Date format, for use as the prompt.
+date=$(date +"%a %d %b %R")
+
+dmenu_run -p "$date"

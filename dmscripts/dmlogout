@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+#
+
+# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
+# if certain things happen, which is a good thing.  Otherwise, we can
+# get hidden bugs that are hard to discover.
+set -euo pipefail
+
+logout_locker='i3lock.sh'
+
+# use notify-send if run in dumb term
+# TODO: add ability to control from config.
+_out="echo"
+if [[ ${TERM} == 'dumb' ]]; then
+    _out="notify-send"
+fi
+
+output(){
+    ${_out} "dm-logout" "$@"
+}
+
+main() {
+    # An array of options to choose.
+    declare -a options=(
+    "Shutdown"
+    "Reboot"
+    "Logout"
+    "Renew dwm"
+    "Lock screen"
+    "Lock screen (blank)"
+    "Display off"
+    "Suspend"
+    "Lock screen and display off"
+    )
+
+    # look up what managers are used (makes it more dynamic)
+    declare -a MANAGERS
+    while IFS= read -r manager
+    do
+        MANAGERS+=("${manager,,}")
+    done < <(grep 'Name' /usr/share/xsessions/*.desktop | awk -F"=" '{print $2}')
+
+    # Piping the above array into dmenu.
+    # We use "printf '%s\n'" to format the array one item to a line.
+    choice=$(printf '%s\n' "${options[@]}" | dmenu -i -p 'Shutdown menu:' "${@}")
+
+    # What to do when/if we choose one of the options.
+    case $choice in
+        'Logout')
+            kill -TERM $(pgrep -u $USER "\bdwm$")
+            ;;
+        'Lock screen')
+            # shellcheck disable=SC2154
+            ${logout_locker}
+            ;;
+	'Lock screen (blank)')
+	    i3lock -u -c 000000 
+	    ;;
+        'Reboot')
+            systemctl reboot
+            ;;
+        'Shutdown')
+            systemctl poweroff
+            ;;
+        'Suspend')
+            systemctl suspend
+            ;;	    
+        'Renew dwm')
+            kill -HUP $(pgrep -u $USER "\bdwm$")
+            ;;
+        'Display off')
+            xset dpms force off
+            ;;
+	'Lock screen and display off')
+	    xset dpms force off && cinnamon-screensaver-command --lock
+	    ;;
+    esac
+
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

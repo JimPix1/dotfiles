@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+#
+# Description: Choose type of screenshot to take with maim.
+# Dependencies: dmenu, main, tee, xdotool, xclip
+
+# Specifying a directory to save our screenshots.
+# Make sure the directory exists.
+SCROTDIR="$HOME/.screenshots"
+
+# An array of options to choose.
+# Note that options for monitor 1, 2 and 3 work only if you have
+# 3 monitors (of course) that are set to 1920x1080 resolution.
+declare -a options=(
+"Fullscreen (save)"
+"Active window (save)"
+"Selected region (save)"
+"Fullscreen (copy)"
+"Active window (copy)"
+#"Selected region (copy)"
+"Fullscreen (save and copy)"
+"Active window (save and copy)"
+"Selected region (save and copy)"
+)
+
+# Piping the above array into dmenu.
+# We use "printf '%s\n'" to format the array one item to a line.
+choice=$(printf '%s\n' "${options[@]}" | dmenu -i -l 25 -p 'Take screenshot of:')
+
+# What to do when/if we choose one of the options.
+case "$choice" in
+	'Fullscreen (save)')
+		maim ""$SCROTDIR"/scrot-full-$(date +%Y-%m-%d-%H-%Mm-%Ss)".png
+	;;
+        'Active window (save)')
+		maim -i "$(xdotool getactivewindow)" "$SCROTDIR"/scrot-window-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png
+	;;
+        'Selected region (save)')
+		maim -s "$SCROTDIR"/scrot-region-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png
+	;;
+	'Fullscreen (copy)')
+		maim | \
+		xclip -selection clipboard -t image/png
+	;;
+	'Active window (copy)')
+		maim -i "$(xdotool getactivewindow)" | \
+		xclip -selection clipboard -t image/png
+	;;
+	'Fullscreen (save and copy)')
+		maim | \
+		tee ""$SCROTDIR"/scrot-full-$(date +%Y-%m-%d-%H-%Mm-%Ss)".png | \
+		xclip -selection clipboard -t image/png
+	;;
+	'Active window (save and copy)')
+		maim -i "$(xdotool getactivewindow)" | \
+		tee "$SCROTDIR"/scrot-window-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png | \
+		xclip -selection clipboard -t image/png
+	;;
+	'Selected region (save and copy)')
+		maim -s | \
+		tee "$SCROTDIR"/scrot-region-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png | \
+		xclip -selection clipboard -t image/png
+	;;
+    # It is a common practice to use the wildcard asterisk symbol (*) as a final
+	# pattern to define the default case. This pattern will always match.
+	*)
+		exit 1
+	;;
+esac

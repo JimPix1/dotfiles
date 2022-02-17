@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+#
+
+# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
+# if certain things happen, which is a good thing. Otherwise, we can
+# get hidden bugs that are hard to discover.
+set -euo pipefail
+
+piped_browser="firefox-nightly"
+url="https://piped.kavin.rocks/results?search_query="
+
+main() {
+  # shellcheck disable=SC2154
+
+  # Searching with the engine.
+  query=$(echo "$url" | dmenu -p 'Enter Piped query:')
+
+  query="$(echo "${query}" | jq -s -R -r @uri)"
+  # Display search results in web browser
+  # shellcheck disable=SC2154
+  ${piped_browser} "${url}${query}"
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"

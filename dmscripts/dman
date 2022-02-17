@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#
+# Script name: dman
+# Description: Search for a manpage.
+# Dependencies: dmenu, xargs
+
+# Set with the flags "-e", "-u","-o pipefail" cause the script to fail
+# if certain things happen, which is a good thing.  Otherwise, we can
+# get hidden bugs that are hard to discover.
+set -euo pipefail
+
+# Defining the terminal emulator to use.
+DMTERM="st"
+
+        man -k . | awk '{$3="-"; print $0}' | \
+        dmenu -l 22 -g 2 -p 'Search for:' | \
+        awk '{print $2, $1}' | tr -d '()' | xargs $DMTERM man

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+
+# Defining our web browser.
+BROWSER="chromium"
+
+# Entering the website url.
+while [ -z "$website" ]; do
+dmenufield=$(dmenu -i -p 'Enter Website URL:') || exit
+websiteurl=$(echo "$dmenufield" | awk '{print $NF}')
+website=$(echo "$dmenufield" | awk '{print $1}')
+done
+
+# Display website in web browser
+$BROWSER "$websiteurl"
+c
