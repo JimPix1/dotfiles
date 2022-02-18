@@ -1,0 +1,12 @@
+#!/bin/sh
+
+case $BLOCK_BUTTON in
+	1) notify-send "🖥 CPU hog (%)" "$(ps axch -o cmd:15,%cpu --sort=-%cpu | head)\\n(100% per core)" ;;
+	2) setsid -f gnome-system-monitor ;;
+	3) notify-send "🖥 CPU module " "\- Shows CPU Used/Total.
+- Click to show intensive processes.
+- Middle click to open gotop." ;;
+	6) st -e nvim "$0" ;;
+esac
+
+echo "$(sensors | awk '/Core 0/ {print $3}')"
