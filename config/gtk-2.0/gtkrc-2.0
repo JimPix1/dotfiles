@@ -1,0 +1,7 @@
+# GTK 2 Settings
+gtk-theme-name = "Materia-dark-compact"
+gtk-icon-theme-name = "Papirus-Dark"
+gtk-font-name = "Sans 10"
+gtk-cursor-theme-name = "Adwaita"
+gtk-xft-hintstyle = "hintfull"
+gtk-xft-rgba = "rgb"

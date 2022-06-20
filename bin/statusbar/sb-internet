@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# Show wifi 📶 and percent strength or 📡 if none.
+# Show 🌐 if connected to ethernet or ❎ if none.
+# Show 🔒 if a vpn connection is active
+
+case $BLOCK_BUTTON in
+	1) "$TERMINAL" -T "Network Manager" -g 87x40 -e nmtui; pkill -RTMIN+9 dwmblocks ;;
+	2) setsid -f dmwifi ;;
+	3) notify-send "$(nmcli|grep '^wlan0'|sed 's/wlan0: connected to /Connected: /g;s/wlan0: connecting (getting IP configuration) to /Connecting to /g;s/wlan0: disconnected/Disconnected/g')" && notify-send -u low "🌐 Internet module" "\- Left click to open nmtui
+- Middle click to show dmwifi
+❌: wifi disabled
+📡: no wifi connection
+📶: wifi connection with quality
+🔒: vpn is active " ;;
+#❎: no ethernet
+#🌐: ethernet working
+	6) "$TERMINAL" -e "$EDITOR" "$0" ;;
+	7) notify-send "📶 Connected WiFi:" "$(nmcli|grep '^wlan0'|sed 's/wlan0: connected to //g;s/wlan0: connecting (getting IP configuration) to /Connecting to /g;s/wlan0: disconnected/Disconnected/g')" ;;
+	8) kill -HUP "$(pgrep -u "$USER" "\bdwm$")"
+esac
+
+if grep -xq 'up' /sys/class/net/w*/operstate 2>/dev/null ; then
+	wifiicon="$(awk '/^\s*w/ { print "📶" int($3 * 100 / 70) "%" }' /proc/net/wireless)"
+elif grep -xq 'down' /sys/class/net/w*/operstate 2>/dev/null; then
+	grep -xq '0x1003' /sys/class/net/w*/flags && wifiicon="📡" || wifiicon="❌"
+fi
+
+#printf "%s%s%s\n" "$wifiicon" "$(sed "s/down/❎/;s/up/🌐/" /sys/class/net/e*/operstate 2>/dev/null)" "$(sed "s/.*/🔒/" /sys/class/net/tun*/operstate 2>/dev/null)"
+#printf "%s\n" "$wifiicon"
+printf "%s%s\n" "$wifiicon" "$(sed "s/.*/🔒/" /sys/class/net/tun*/operstate 2>/dev/null)"

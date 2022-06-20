@@ -1,0 +1,10 @@
+#!/bin/sh
+
+bat="$(cat /sys/class/power_supply/BAT?/capacity)"
+
+case $BLOCK_BUTTON in
+	1) xfce4-power-manager-settings ;;
+        6) kitty -e nvim "$0" ;;
+esac
+
+echo "$bat%"

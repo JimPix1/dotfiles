@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Show swap usage
+
+case $BLOCK_BUTTON in
+	1) setsid -f systeminfo ;;
+	2) setsid -f "$TERMINAL" -e gotop ;;
+	3) notify-send "🔁 Swap module" "\- Shows Swap Used
+- Click to show \`systeminfo\`
+- Middle click to open \`gotop\`" ;;
+	6) "$TERMINAL" -e "$EDITOR" "$0" ;;
+esac
+
+free -h | awk '/^Swap:/ {print $3}'| sed 's/\.0//;s/0Ki/0B/'
