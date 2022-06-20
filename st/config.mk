@@ -1,5 +1,5 @@
 # st version
-VERSION = 0.8.4
+VERSION = 0.8.5
 
 # Customize below to fit your system
 
@@ -19,10 +19,13 @@ XRENDER = -lXrender
 #XCURSOR = -lXcursor
 
 # Uncomment the lines below for the ligatures patch / LIGATURES_PATCH
-LIGATURES_C = hb.c
-LIGATURES_H = hb.h
-LIGATURES_INC = `$(PKG_CONFIG) --cflags harfbuzz`
-LIGATURES_LIBS = `$(PKG_CONFIG) --libs harfbuzz`
+#LIGATURES_C = hb.c
+#LIGATURES_H = hb.h
+#LIGATURES_INC = `$(PKG_CONFIG) --cflags harfbuzz`
+#LIGATURES_LIBS = `$(PKG_CONFIG) --libs harfbuzz`
+
+# Uncomment this for the SIXEL patch / SIXEL_PATCH
+#SIXEL_C = sixel.c sixel_hls.c
 
 # includes and libs, uncomment harfbuzz for the ligatures patch
 INCS = -I$(X11INC) \

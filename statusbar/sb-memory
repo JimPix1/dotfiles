@@ -1,13 +1,16 @@
 #!/bin/sh
 
+# Show memory usage
+
 case $BLOCK_BUTTON in
-	1) notify-send "🧠 Memory hogs (%)" "$(ps axch -o cmd:15,%mem --sort=-%mem | head)" ;;
-	2) setsid -f st -e htop ;;
-	3) notify-send "🧠 Memory module" "\- Shows Memory Used/Total.
-- Click to show memory hogs.
-- Middle click to open htop." ;;
-	6) st -e nvim "$0" ;;
+	1) notify-send "🧠 Memory hogs (%)" "$(ps axch -o cmd:19,%mem --sort=-%mem | head)" ;;
+	2) setsid -f "$TERMINAL" -e gnome-system-monitor ;;
+	3) notify-send "🧠 Memory module" "\- Shows Memory Used
+- Click to show memory hogs
+- Middle click to open gnome system monitor
+- Shift + Right click to show \`systeminfo\`" ;;
+	6) "$TERMINAL" -e "$EDITOR" "$0" ;;
+	7) setsid -f systeminfo ;;
 esac
 
-echo "$(free -h | awk '/^Mem:/ {print $3}')"
-#|🔁$(free -h | awk '/^Swap:/ {print $3}')"
+free -h | awk '/^Mem:/ {print $3}' | sed 's/i$//'

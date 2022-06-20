@@ -20,7 +20,6 @@
 
 #include "drw.h"
 #include "util.h"
-#include <stdbool.h>
 
 /* macros */
 #define INTERSECT(x,y,w,h,r)  (MAX(0, MIN((x)+(w),(r).x_org+(r).width)  - MAX((x),(r).x_org)) \
@@ -35,6 +34,7 @@ enum {
 	SchemeNorm,
 	SchemeSel,
 	SchemeOut,
+	SchemeBorder,
 	SchemeMid,
 	SchemeNormHighlight,
 	SchemeSelHighlight,
@@ -79,6 +79,13 @@ static Clr *scheme[SchemeLast];
 
 static int (*fstrncmp)(const char *, const char *, size_t) = strncmp;
 static char *(*fstrstr)(const char *, const char *) = strstr;
+
+static unsigned int
+textw_clamp(const char *str, unsigned int n)
+{
+	unsigned int w = drw_fontset_getwidth_clamp(drw, str, n) + lrpad;
+	return MIN(w, n);
+}
 
 static void appenditem(struct item *item, struct item **list, struct item **last);
 static void calcoffsets(void);
@@ -129,10 +136,10 @@ calcoffsets(void)
 		n = mw - (promptw + inputw + TEXTW("<") + TEXTW(">"));
 	/* calculate which items will begin the next page and previous page */
 	for (i = 0, next = curr; next; next = next->right)
-		if ((i += (lines > 0) ? bh : MIN(TEXTW(next->text), n)) > n)
+		if ((i += (lines > 0) ? bh : textw_clamp(next->text, n)) > n)
 			break;
 	for (i = 0, prev = curr; prev && prev->left; prev = prev->left)
-		if ((i += (lines > 0) ? bh : MIN(TEXTW(prev->left->text), n)) > n)
+		if ((i += (lines > 0) ? bh : textw_clamp(prev->left->text, n)) > n)
 			break;
 }
 
@@ -144,6 +151,9 @@ cleanup(void)
 	XUngrabKey(dpy, AnyKey, AnyModifier, root);
 	for (i = 0; i < SchemeLast; i++)
 		free(scheme[i]);
+	for (i = 0; items && items[i].text; ++i)
+		free(items[i].text);
+	free(items);
 	drw_free(drw);
 	XSync(dpy, False);
 	XCloseDisplay(dpy);
@@ -255,9 +265,9 @@ drawmenu(void)
 		}
 		x += w;
 		for (item = curr; item != next; item = item->right) {
-			itw = TEXTW(item->text);
 			stw = TEXTW(">");
-			x = drawitem(item, x, 0, MIN(itw, mw - x - stw - rpad));
+			itw = textw_clamp(item->text, mw - x - stw - rpad);
+			x = drawitem(item, x, 0, itw);
 		}
 		if (next) {
 			w = TEXTW(">");
@@ -328,7 +338,7 @@ match(void)
 	/* separate input text into tokens to be matched individually */
 	for (s = strtok(buf, " "); s; tokv[tokc - 1] = s, s = strtok(NULL, " "))
 		if (++tokc > tokn && !(tokv = realloc(tokv, ++tokn * sizeof *tokv)))
-			die("cannot realloc %u bytes:", tokn * sizeof *tokv);
+			die("cannot realloc %zu bytes:", tokn * sizeof *tokv);
 	len = tokc ? strlen(tokv[0]) : 0;
 
 	matches = lprefix = lsubstr = matchend = prefixend = substrend = NULL;
@@ -421,9 +431,6 @@ keypress(XKeyEvent *ev)
 	int len;
 	KeySym ksym;
 	Status status;
-	int i;
-	struct item *tmpsel;
-	bool offscreen = false;
 
 	len = XmbLookupString(xic, ev, buf, sizeof buf, &ksym, &status);
 	switch (status) {
@@ -484,6 +491,8 @@ keypress(XKeyEvent *ev)
 			goto draw;
 		case XK_Return:
 		case XK_KP_Enter:
+			if (restrict_return)
+				break;
 			break;
 		case XK_bracketleft:
 			cleanup();
@@ -513,7 +522,7 @@ keypress(XKeyEvent *ev)
 	switch(ksym) {
 	default:
 insert:
-		if (!iscntrl(*buf))
+		if (!iscntrl((unsigned char)*buf))
 			insert(buf, len);
 		break;
 	case XK_Delete:
@@ -558,24 +567,6 @@ insert:
 		break;
 	case XK_Left:
 	case XK_KP_Left:
-		if (columns > 1) {
-			if (!sel)
-				return;
-			tmpsel = sel;
-			for (i = 0; i < lines; i++) {
-				if (!tmpsel->left ||  tmpsel->left->right != tmpsel)
-					return;
-				if (tmpsel == curr)
-					offscreen = true;
-				tmpsel = tmpsel->left;
-			}
-			sel = tmpsel;
-			if (offscreen) {
-				curr = prev;
-				calcoffsets();
-			}
-			break;
-		}
 		if (cursor > 0 && (!sel || !sel->left || lines > 0)) {
 			cursor = nextrune(-1);
 			break;
@@ -618,24 +609,6 @@ insert:
 		break;
 	case XK_Right:
 	case XK_KP_Right:
-		if (columns > 1) {
-			if (!sel)
-				return;
-			tmpsel = sel;
-			for (i = 0; i < lines; i++) {
-				if (!tmpsel->right ||  tmpsel->right->left != tmpsel)
-					return;
-				tmpsel = tmpsel->right;
-				if (tmpsel == next)
-					offscreen = true;
-			}
-			sel = tmpsel;
-			if (offscreen) {
-				curr = next;
-				calcoffsets();
-			}
-			break;
-		}
 		if (text[cursor] != '\0') {
 			cursor = nextrune(+1);
 			break;
@@ -735,18 +708,18 @@ readstdin(void)
 	for (i = 0; fgets(buf, sizeof buf, stdin); i++)	{
 		if (i + 1 >= size / sizeof *items)
 			if (!(items = realloc(items, (size += BUFSIZ))))
-				die("cannot realloc %u bytes:", size);
+				die("cannot realloc %zu bytes:", size);
 		if ((p = strchr(buf, '\n')))
 			*p = '\0';
 		if (!(items[i].text = strdup(buf)))
-			die("cannot strdup %u bytes:", strlen(buf) + 1);
+			die("cannot strdup %zu bytes:", strlen(buf) + 1);
 		items[i].out = 0;
-
 		drw_font_getexts(drw->fonts, buf, strlen(buf), &tmpmax, NULL);
 		if (tmpmax > inputw) {
 			inputw = tmpmax;
 			imax = i;
 		}
+
 	}
 	if (items)
 		items[i].text = NULL;
@@ -890,7 +863,7 @@ setup(void)
 		CWOverrideRedirect|CWBackPixel|CWBorderPixel|CWColormap|CWEventMask, &swa
 	);
 	if (border_width)
-		XSetWindowBorder(dpy, win, scheme[SchemeSel][ColBg].pixel);
+		XSetWindowBorder(dpy, win, scheme[SchemeBorder][ColBg].pixel);
 	XSetClassHint(dpy, win, &ch);
 
 
@@ -1052,3 +1025,4 @@ main(int argc, char *argv[])
 
 	return 1; /* unreachable */
 }
+

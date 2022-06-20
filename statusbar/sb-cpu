@@ -1,13 +1,14 @@
 #!/bin/sh
 
+# Show CPU usage
+
 case $BLOCK_BUTTON in
-	1) notify-send "🖥 CPU hog (%)" "$(ps axch -o cmd:15,%cpu --sort=-%cpu | head)\\n(100% per core)" ;;
-	2) setsid -f st -e gotop ;;
-	3) notify-send "🖥 CPU module " "\- Shows CPU Used/Total.
-- Click to show intensive processes.
-- Middle click to open gotop." ;;
-	6) st -e nvim "$0" ;;
+	1) notify-send "🖥 CPU hog (%)" "$(ps axch -o cmd:19,%cpu --sort=-%cpu | head)\\n(100% per core)" ;;
+	2) setsid -f "$TERMINAL" -e htop ;;
+	3) notify-send "🖥 CPU module" "\- Shows CPU Used
+- Click to show intensive processes
+- Middle click to open \`htop\`" ;;
+	6) "$TERMINAL" -e "$EDITOR" "$0" ;;
 esac
 
-echo "$(grep 'cpu ' /proc/stat | awk '{cpu_usage=($2+$4)*100/($2+$4+$5)} END {printf "%0.2f%", cpu_usage}')"
-#&& sensors | awk '/Core 0/ {print "|🌡" $3}')"
+top -bn 1 | awk '/^%Cpu/ {printf "%.f%%\n", $2+$4+$6}'

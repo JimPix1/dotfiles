@@ -1,12 +1,14 @@
 #!/bin/sh
 
+# Show temperature of CPU
+
 case $BLOCK_BUTTON in
-	1) notify-send "🖥 CPU hog (%)" "$(ps axch -o cmd:15,%cpu --sort=-%cpu | head)\\n(100% per core)" ;;
-	2) setsid -f gnome-system-monitor ;;
-	3) notify-send "🖥 CPU module " "\- Shows CPU Used/Total.
-- Click to show intensive processes.
-- Middle click to open gotop." ;;
-	6) st -e nvim "$0" ;;
+	1) notify-send "🌡️CPU temperature" "$(sensors)" ;;
+	2) setsid -f "$TERMINAL" -e gotop ;;
+	3) notify-send "🌡️CPU temperature module " "\- Shows temperature of CPU
+- Click for more info
+- Middle click to open \`gotop\`" ;;
+	6) "$TERMINAL" -e "$EDITOR" "$0" ;;
 esac
 
-echo "$(sensors | awk '/Core 0/ {print $3}')"
+sensors | awk '/Core 0/ {print $3}' | sed 's/\.0°C/°/;s/+//'

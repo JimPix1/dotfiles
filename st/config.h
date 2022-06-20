@@ -1,24 +1,15 @@
 // JimPix's St Config
-
 /* See LICENSE file for copyright and license details. */
 
 /*
  * appearance
  */
 
+static char *font = "Monospace:pixelsize=14:antialias=true:autohint=true";
+static char *font2[] = { "JoyPixels:pixelsize=12:antialias=true:autohint=true" };
 
-/* Your default font will be Hack which is found in the standard
- * Arch repos and is listed as a dependency for this build. JoyPixels is also
- * a hard dependency and makes colored fonts and emojis possible.
- */
-static char *font = "Hack:pixelsize=14:antialias=true:autohint=true";
-static char *font2[] = {
-    "JoyPixels:pixelsize=14:antialias=true:autohint=true",
-};
-
-/* borderperc: percentage of cell width to use as a border
- *             0 = no border, 100 = border width is same as cell width */
-int borderperc = 20;
+/* Width of the border */
+static int borderpx = 2;
 
 /*
  * What program is execed by st depends of these precedence rules:
@@ -73,7 +64,7 @@ static double maxlatency = 33;
  * blinking timeout (set to 0 to disable blinking) for the terminal blinking
  * attribute.
  */
-static unsigned int blinktimeout = 800;
+static unsigned int blinktimeout = 850;
 
 /*
  * thickness of underline and bar cursors
@@ -124,32 +115,32 @@ float alpha = 0.8;
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
 	/* 8 normal colors */
-	"#161825",
-	"#e27878",
-	"#a3be8c",
-	"#ebcb8b",
-	"#84a0c6",
-	"#a093c7",
-	"#89b8c2",
-	"#cfd1dd",
+	"#282828", /* hard contrast: #1d2021 / soft contrast: #32302f */
+	"#cc241d",
+	"#98971a",
+	"#d79921",
+	"#458588",
+	"#b16286",
+	"#689d6a",
+	"#a89984",
 
 	/* 8 bright colors */
-	"#575b73",
-	"#e27878",
-	"#a3b38c",
-	"#ebcb8b",
-	"#84a0c6",
-	"#a093c7",
-	"#89b8c2",
-	"#cfd1dd",
+	"#928374",
+	"#fb4934",
+	"#a3b38c", /* #b8bb26 */
+	"#fabd2f",
+	"#84a0c6", /* #83a598 */
+	"#d3869b",
+	"#89b8c2", /* #8ec07c */
+	"#ebdbb2",
 
 	[255] = 0,
 
 	/* more colors can be added after 255 to use with DefaultXX */
-	"#bbc2cf",
-	"#282c34",
-	"#13141d", /* bg */
-	"#d7d7d7", /* fg */
+	"#bbc2cf", /* 256 -> cursor	(#add8e6) */
+	"#282c34", /* 257 -> rev cursor (#555555) */
+	"#13141d", /* 258 -> bg		(#282828) */
+	"#d7d7d7", /* 259 -> fg		(#ebdbb2) */
 };
 
 
@@ -215,21 +206,19 @@ static MouseShortcut mshortcuts[] = {
 	/* mask                 button     function        argument            release */
 	{ XK_NO_MOD,            Button4,   kscrollup,      {.i = 3},           0, /* !alt */ -1 },
 	{ XK_NO_MOD,            Button5,   kscrolldown,    {.i = 3},           0, /* !alt */ -1 },
-
 	{ XK_ANY_MOD,           Button2,   selpaste,       {.i = 0},           1 },
-
 	{ XK_ANY_MOD,           Button4,   ttysend,        {.s = "\031"} },
 	{ XK_ANY_MOD,           Button5,   ttysend,        {.s = "\005"} },
 };
-
 
 /* Internal keyboard shortcuts. */
 #define MODKEY Mod1Mask
 #define TERMMOD (ControlMask|ShiftMask)
 
-static char *openurlcmd[] = { "/bin/sh", "-c", "~/.config/st/st-urlhandler -o", "externalpipe", NULL };
-static char *copyurlcmd[] = { "/bin/sh", "-c", "~/.config/st/st-urlhandler -c", "externalpipe", NULL };
-static char *copyoutput[] = { "/bin/sh", "-c", "~/.config/st/st-copyout", "externalpipe", NULL };
+/* Commands */
+static char *openurlcmd[] = { "/bin/sh", "-c", "~/.local/src/st/st-urlhandler -o", "externalpipe", NULL };
+static char *copyurlcmd[] = { "/bin/sh", "-c", "~/.local/src/st/st-urlhandler -c", "externalpipe", NULL };
+static char *copyoutput[] = { "/bin/sh", "-c", "~/.local/src/st/st-copyout", 	   "externalpipe", NULL };
 
 static Shortcut shortcuts[] = {
 	/* mask                 keysym          function         argument */
@@ -237,17 +226,36 @@ static Shortcut shortcuts[] = {
 	{ ControlMask,          XK_Print,       toggleprinter,  {.i =  0} },
 	{ ShiftMask,            XK_Print,       printscreen,    {.i =  0} },
 	{ XK_ANY_MOD,           XK_Print,       printsel,       {.i =  0} },
-	{ TERMMOD,              XK_O,           zoom,           {.f = +1} },
-	{ TERMMOD,              XK_I,           zoom,           {.f = -1} },
-	{ TERMMOD,              XK_U,           zoomreset,      {.f =  0} },
+
+	{ TERMMOD,              XK_Home,        zoomreset,      {.f =  0} },
+	{ TERMMOD,              XK_L,           zoomreset,      {.f =  0} },
+	{ TERMMOD,              XK_Up,          zoom,           {.f = +1} },
+	{ TERMMOD,              XK_Down,        zoom,           {.f = -1} },
+	{ TERMMOD,              XK_K,           zoom,           {.f = +1} },
+	{ TERMMOD,              XK_J,           zoom,           {.f = -1} },
+	{ TERMMOD,              XK_U,           zoom,           {.f = +2} },
+	{ TERMMOD,              XK_D,           zoom,           {.f = -2} },
+
 	{ TERMMOD,              XK_C,           clipcopy,       {.i =  0} },
 	{ TERMMOD,              XK_V,           clippaste,      {.i =  0} },
+	{ MODKEY,               XK_c,           clipcopy,       {.i =  0} },
+	{ MODKEY,               XK_v,           clippaste,      {.i =  0} },
 	{ TERMMOD,              XK_Y,           selpaste,       {.i =  0} },
 	{ ShiftMask,            XK_Insert,      selpaste,       {.i =  0} },
 	{ TERMMOD,              XK_Num_Lock,    numlock,        {.i =  0} },
+
 	{ ShiftMask,            XK_Page_Up,     kscrollup,      {.i = -1} },
 	{ ShiftMask,            XK_Page_Down,   kscrolldown,    {.i = -1} },
-	{ MODKEY,               XK_l,           externalpipe,   {.v = openurlcmd } },
+	{ MODKEY,               XK_Page_Up,     kscrollup,      {.i = -1} },
+	{ MODKEY,               XK_Page_Down,   kscrolldown,    {.i = -1} },
+	{ MODKEY,               XK_k,           kscrollup,      {.i =  1} },
+	{ MODKEY,               XK_j,           kscrolldown,    {.i =  1} },
+	{ MODKEY,               XK_Up,          kscrollup,      {.i =  1} },
+	{ MODKEY,               XK_Down,        kscrolldown,    {.i =  1} },
+	{ MODKEY,               XK_u,           kscrollup,      {.i = -1} },
+	{ MODKEY,               XK_d,           kscrolldown,    {.i = -1} },
+
+	{ MODKEY,               XK_l,	        externalpipe,   {.v = openurlcmd } },
 	{ MODKEY,               XK_y,           externalpipe,   {.v = copyurlcmd } },
 	{ MODKEY,               XK_o,           externalpipe,   {.v = copyoutput } },
 };
@@ -520,5 +528,5 @@ static uint selmasks[] = {
 static char ascii_printable[] =
 	" !\"#$%&'()*+,-./0123456789:;<=>?"
 	"@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
-"`abcdefghijklmnopqrstuvwxyz{|}~";
+	"`abcdefghijklmnopqrstuvwxyz{|}~";
 

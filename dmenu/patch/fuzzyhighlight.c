@@ -19,7 +19,7 @@ drawhighlights(struct item *item, int x, int y, int maxw)
 			/* get indentation */
 			c = *highlight;
 			*highlight = '\0';
-			indent = TEXTW(itemtext);
+			indent = TEXTW(itemtext) - lrpad;
 			*highlight = c;
 
 			/* highlight character */
@@ -27,9 +27,9 @@ drawhighlights(struct item *item, int x, int y, int maxw)
 			highlight[1] = '\0';
 			drw_text(
 				drw,
-				x + indent - (lrpad / 2),
+				x + indent + (lrpad / 2),
 				y,
-				MIN(maxw - indent, TEXTW(highlight) - lrpad),
+				MIN(maxw - indent - lrpad, TEXTW(highlight) - lrpad),
 				bh, 0, highlight, 0
 			);
 			highlight[1] = c;

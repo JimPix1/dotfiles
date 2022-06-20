@@ -48,10 +48,8 @@ install: st
 	sed "s/VERSION/$(VERSION)/g" < st.1 > $(DESTDIR)$(MANPREFIX)/man1/st.1
 	chmod 644 $(DESTDIR)$(MANPREFIX)/man1/st.1
 	tic -sx st.info
-	mkdir -p /usr/share/applications # desktop-entry patch
-	cp -n st.desktop /usr/share/applications # desktop-entry patch
-#OLD	mkdir -p $(DESTDIR)$(PREFIX)/share/applications # desktop-entry patch
-#OLD	cp -n st.desktop $(DESTDIR)$(PREFIX)/share/applications # desktop-entry patch
+	mkdir -p $(DESTDIR)$(PREFIX)/share/applications # desktop-entry patch
+	cp -n st.desktop $(DESTDIR)$(PREFIX)/share/applications # desktop-entry patch
 	@echo Please see the README file regarding the terminfo entry of st.
 
 uninstall:

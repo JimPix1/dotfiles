@@ -23,7 +23,6 @@ fuzzymatch(void)
 	char c;
 	int number_of_matches = 0, i, pidx, sidx, eidx;
 	int text_len = strlen(text), itext_len;
-
 	matches = matchend = NULL;
 
 	/* walk through all items */
@@ -67,6 +66,7 @@ fuzzymatch(void)
 		for (i = 0, it = matches; it && i < number_of_matches; i++, it = it->right) {
 			fuzzymatches[i] = it;
 		}
+
 		/* sort matches according to distance */
 		qsort(fuzzymatches, number_of_matches, sizeof(struct item*), compare_distance);
 		/* rebuild list of matches */

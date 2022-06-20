@@ -1,7 +1,7 @@
 int extpipeactive = 0;
 
 void
-extpipe(const Arg *arg, int in)
+externalpipe(const Arg *arg)
 {
 	int to[2];
 	char buf[UTF_SIZ];
@@ -21,9 +21,6 @@ extpipe(const Arg *arg, int in)
 		dup2(to[0], STDIN_FILENO);
 		close(to[0]);
 		close(to[1]);
-		if (in)
-			dup2(csdfd, STDOUT_FILENO);
-		close(csdfd);
 		execvp(((char **)arg->v)[0], (char **)arg->v);
 		fprintf(stderr, "st: execvp %s\n", ((char **)arg->v)[0]);
 		perror("failed");
@@ -57,12 +54,3 @@ extpipe(const Arg *arg, int in)
 	extpipeactive = 1;
 }
 
-void
-externalpipe(const Arg *arg) {
-	extpipe(arg, 0);
-}
-
-void
-externalpipein(const Arg *arg) {
-	extpipe(arg, 1);
-}
