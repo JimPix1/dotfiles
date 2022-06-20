@@ -1,7 +1,0 @@
-#!/bin/sh
-
-# Search for a manpage using dmenu.
-
-man -k . | awk '{$3="-"; print $0}' | \
-dmenu -l 14 -g 2 -p 'Search for:' | \
-awk '{print $2, $1}' | tr -d '()' | xargs "$TERMINAL" man
