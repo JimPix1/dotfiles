@@ -8,6 +8,7 @@ static void incrgaps(const Arg *arg);
 /* static void incrihgaps(const Arg *arg); */
 /* static void incrivgaps(const Arg *arg); */
 static void togglegaps(const Arg *arg);
+static void togglesmartgaps(const Arg *arg);
 
 /* Layouts */
 static void bstack(Monitor *m);
@@ -18,6 +19,7 @@ static void dwindle(Monitor *m);
 static void fibonacci(Monitor *m, int s);
 static void spiral(Monitor *m);
 static void tile(Monitor *);
+static void nrowgrid(Monitor *m);
 
 /* Internals */
 static void getgaps(Monitor *m, int *oh, int *ov, int *ih, int *iv, unsigned int *nc);
@@ -45,6 +47,13 @@ static void
 togglegaps(const Arg *arg)
 {
 	enablegaps = !enablegaps;
+	arrange(NULL);
+}
+
+static void
+togglesmartgaps(const Arg *arg)
+{
+	smartgaps = !smartgaps;
 	arrange(NULL);
 }
 
@@ -540,3 +549,57 @@ tile(Monitor *m)
 			sy += HEIGHT(c) + ih;
 		}
 }
+
+void
+nrowgrid(Monitor *m)
+{
+    unsigned int n = 0, i = 0, ri = 0, ci = 0;  /* counters */
+    unsigned int cx, cy, cw, ch;                /* client geometry */
+    unsigned int uw = 0, uh = 0, uc = 0;        /* utilization trackers */
+    unsigned int cols, rows = m->nmaster + 1;
+    Client *c;
+
+    /* count clients */
+    for (c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+
+    /* nothing to do here */
+    if (n == 0)
+        return;
+
+    /* force 2 clients to always split vertically */
+    if (FORCE_VSPLIT && n == 2)
+        rows = 1;
+
+    /* never allow empty rows */
+    if (n < rows)
+        rows = n;
+
+    /* define first row */
+    cols = n / rows;
+    uc = cols;
+    cy = m->wy;
+    ch = m->wh / rows;
+    uh = ch;
+
+    for (c = nexttiled(m->clients); c; c = nexttiled(c->next), i++, ci++) {
+        if (ci == cols) {
+            uw = 0;
+            ci = 0;
+            ri++;
+
+            /* next row */
+            cols = (n - uc) / (rows - ri);
+            uc += cols;
+            cy = m->wy + uh;
+            ch = (m->wh - uh) / (rows - ri);
+            uh += ch;
+        }
+
+        cx = m->wx + uw;
+        cw = (m->ww - uw) / (cols - ci);
+        uw += cw;
+
+        resize(c, cx, cy, cw - 2 * c->bw, ch - 2 * c->bw, 0);
+    }
+}
+
