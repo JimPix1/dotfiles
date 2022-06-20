@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# Search various search engines (inspired by surfraw).
+
+set -euo pipefail
+
+declare -A websearch
+# Syntax:
+# websearch[name]="https://www.example.com/search?q="
+
+# Search Engines
+websearch[searx]="https://searx.fmac.xyz/search?q="
+websearch[bing]="https://www.bing.com/search?q="
+websearch[qwant]="https://www.qwant.com/?q="
+websearch[brave search]="https://search.brave.com/search?q="
+websearch[brave images]="https://search.brave.com/images?q="
+websearch[startpage]="https://www.startpage.com/do/dsearch?query="
+websearch[duckduckgo]="https://duckduckgo.com/?q="
+websearch[google]="https://www.google.com/search?q="
+websearch[google images]="https://www.google.com/search?hl=en&tbm=isch&q="
+# Linux & Development
+websearch[archaur]="https://aur.archlinux.org/packages/?O=0&K="
+websearch[archpkg]="https://archlinux.org/packages/?sort=&q="
+websearch[archwiki]="https://wiki.archlinux.org/index.php?search="
+websearch[github]="https://github.com/search?q="
+websearch[gitlab]="https://gitlab.com/search?search="
+# Social Media
+websearch[odysee]="https://odysee.com/$/search?q="
+websearch[invidious]="https://invidious.kavin.rocks/search?q="
+websearch[invidious video]="https://invidious.kavin.rocks/watch?v="
+websearch[libreddit]="https://libreddit.kavin.rocks/search?q="
+websearch[piped]="https://piped.kavin.rocks/results?search_query="
+websearch[piped video]="https://piped.kavin.rocks/watch?v="
+websearch[yewtube]="https://yewtu.be/search?q="
+websearch[yewtube video]="https://yewtu.be/watch?v="
+#websearch[youtube]="https://www.youtube.com/results?search_query="
+#websearch[youtube video]="https://www.youtube.com/watch?v="
+# Information
+websearch[urban]="https://www.urbandictionary.com/define.php?term="
+websearch[webster]="https://www.merriam-webster.com/dictionary/"
+websearch[thesaurus]="https://www.thesaurus.com/misspelling?term="
+websearch[wikiless]="https://wikiless.org/w/index.php?search="
+websearch[wikipedia]="https://wikipedia.org/w/index.php?search="
+websearch[wiktionary]="https://en.wiktionary.org/w/index.php?search="
+websearch[rtenews]="https://www.rte.ie/search/query/"
+websearch[translate]="https://translate.google.com/?sl=auto&text="
+websearch[focloir]="https://www.focloir.ie/en/search/ei/direct/?q="
+# Etc.
+websearch[zlibrary]="https://1lib.org/s/"
+websearch[soundcloud]="https://soundcloud.com/search?q="
+websearch[wayback]="https://web.archive.org/web/*/"
+websearch[rutracker]="https://rutracker.org/forum/tracker.php?nm="
+websearch[steamgriddb]="https://www.steamgriddb.com/search/grids?term="
+##################################################################
+
+# Find how many lines long the list of websites must be
+# If the number of websites isn't an integer then add one extra line
+if echo "$(printf '%s\n' "${!websearch[@]}" | wc -l )/2" | bc -l | grep '\.[1-9]'; then
+    LINES="$(echo "$(printf '%s\n' "${!websearch[@]}" | wc -l)/2+1" | bc)"
+else
+    LINES="$(echo "$(printf '%s\n' "${!websearch[@]}" | wc -l )/2" | bc)"
+fi
+
+main() {
+  # As this is loaded from other file it is technically not defined
+  # Choosing a search engine by name from array above.
+  engine=$(printf '%s\n' "${!websearch[@]}" | sort | dmenu -1 -c -i -bw 2 -g 2 -l "$LINES" -p 'Choose engine:') "$@" || exit
+
+  # Getting the URL of the search engine we chose.
+  url="${websearch["${engine}"]}"
+
+  # Searching the chosen engine.
+  query=$(:|dmenu -p "Enter ${engine} query:")
+
+  query="$(echo "${query}" | jq -s -R -r @uri)"
+  # Display search results in web browser
+  $BROWSER "${url}${query}"
+}
+
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "$@"
