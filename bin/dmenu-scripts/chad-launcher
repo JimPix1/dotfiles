@@ -1,7 +1,8 @@
 #!/bin/sh
-# Written by JimPix
 
 # Select a game to play using dmenu
+# The game must have a start script like [games dir]/[GAME]/start.sh
+# Written by JimPix (github.com/JimPix1)
 
 # Forbid using Chad Launcher with sudo or as a root user
 [ "$(id -u)" = "0" ] && echo "Don't use sudo or root user to run Chad Launcher!" && exit 1
@@ -11,7 +12,7 @@ cd "$XDG_DATA_HOME/games" || exit 1
 
 # Find how many lines long the list of games must be
 # If the number of games isn't an integer then add one extra line
-if echo "$(exa -D | wc -l)/4" | bc -l | grep '\.[1-9]'; then
+if echo "$(exa -D | wc -l)/4" | bc -l | grep -q '\.[1-9]'; then
     LINES="$(echo "$(exa -D | wc -l)/4+1" | bc)"
 else
     LINES="$(echo "$(exa -D | wc -l)/4" | bc)"
@@ -25,28 +26,33 @@ game="$(exa -D --no-icons | sed 's/\./ /g' | \
 gamedir="$(echo "$game" | sed 's/ /\./g')"; choice="$(echo "$game" | sed 's/ /\./g')"
 
 # Find the correct start script to use
-if [ -e "$(ls "$gamedir"/*start*)" ]; then
-	RUN="$(ls "$gamedir"/*start*)" || exit 1
-# If the chosen game entry contains multiple games, search for start scripts in those game directories instead
-   elif [ -n "$(ls "$gamedir"/*/*start*)" ]; then
+if [ -e "$(ls "$gamedir"/start* 2>/dev/null)" ]; then
+	RUN="$(ls "$gamedir"/start*)" || exit 1
+# If the chosen game entry contains multiple game dirs, search for start scripts in those game directories instead
+   elif [ -n "$(ls "$gamedir"/*/start* 2>/dev/null)" ]; then
 	game="$(exa -D --no-icons "$gamedir" | sed 's/\./ /g' | dmenu -1 -i -l 37 -fn mono-10 -o 1 -p 'Select game:')" || exit
 	choice="$(echo "$game" | sed 's/ /\./g')"; gamedir="$gamedir"/"$choice"
-	RUN="$(ls "$gamedir"/*start*)" || exit 1
+	RUN="$(ls "$gamedir"/start*)" || exit 1
 # Exit if no start scripts are found and send a notification
-else notify-send "🚫 No start scripts found!" && exit 1
+   else notify-send "🚫 No start scripts found!" && exit 1
 fi
 
-# Options for when you select a game
-if [ -d "$gamedir"/files ]; then
-   if [ -d "$gamedir"/files/data ]; then
-      # If the game data ([GAME]/files/data) is found give an option to move it to ~/.cache
-      answer="$(printf "Quit\nStart\nOpen in lf\nMove Data\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
-   # If no game data is found in [GAME]/files/data give the option to return it from ~/.cache (if it exists)
-   else answer="$(printf "Quit\nStart\nOpen in lf\nReturn Data\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
-   fi
-# If the game isn't a new 1337 release and doesn't use isolation, use this prompt instead
+#------------------------------------#
+# Options for when you select a game #
+#------------------------------------#
+
+# If the game data ([GAME]/files/data) is found give an option to move the data to ~/.cache
+if [ -d "$gamedir"/files/data ]; then
+   answer="$(printf "Quit\nStart\nOpen in lf\nMove Data\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
+
+# Check to see if the game's data is in ~/.cache and give the option to return it to the game directory
+elif [ -d "$XDG_CACHE_HOME"/"$choice"-Data ]; then
+     answer="$(printf "Quit\nStart\nOpen in lf\nReturn Data\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
+
+# If the game isn't a new 1337x release or doesn't use isolation, use this prompt instead
 else answer="$(printf "Quit\nStart\nOpen in lf\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
 fi
+
 	# Start the game and send a notification to tell you it's starting
         if [ "$answer" = "Start" ]; then
            notify-send "🎮 Starting Game:" '<b><span foreground="yellow">💻 '"$game"'</span></b>' # Send a notification
