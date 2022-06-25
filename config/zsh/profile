@@ -5,23 +5,22 @@
 export PATH="$HOME/.local/bin:$PATH"		# General scripts
 export PATH="$HOME/.local/bin/dmscripts:$PATH"  # Dmenu scripts
 export PATH="$HOME/.local/bin/statusbar:$PATH"  # Statusbar scripts
-export PATH="$HOME/.local/bin/envscripts:$PATH" # Environment/Polkit scripts
 
 unsetopt PROMPT_SP
 
 # Default programs:
-export BROWSER="firefox"
+#export BROWSER="firefox"
 export TERMINAL="st"
 export EDITOR="nvim"
 export VISUAL="nvim"
 
 # ~/ Clean-up:
-export ZDOTDIR="/home/matt/.config/zsh"
+export ZDOTDIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XINITRC="${XDG_CONFIG_HOME:-$HOME/.config}/x11/xinitrc"
-export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority"
+#export XAUTHORITY="$XDG_RUNTIME_DIR/Xauthority" # May break some DMs
 export GTK2_RC_FILES="${XDG_CONFIG_HOME:-$HOME/.config}/gtk-2.0/gtkrc-2.0"
 export WGETRC="${XDG_CONFIG_HOME:-$HOME/.config}/wget/wgetrc"
 export WINEPREFIX="${XDG_DATA_HOME:-$HOME/.local/share}/wine"
@@ -32,13 +31,8 @@ export LESSHISTFILE="-"
 
 # Other program settings:
 export QT_QPA_PLATFORMTHEME="gtk2"	# Have QT use gtk2 theme
-export QT_STYLE_OVERRIDE="kvantum"      # Have QT use kvantum style
 export _JAVA_AWT_WM_NONREPARENTING=1	# Fix for Java applications in dwm
-export LOCATION="Ballynacally" 		# Location used for wttr.in
-export MUSICDIR="$HOME/.music"		# Music directory location
-export CM_SELECTIONS="clipboard"	# Make clipmenu copy to clipboard
-export CM_DIR="${XDG_DATA_HOME:-$HOME/.local/share}"	# Clipmenu dir
-export SUDO_ASKPASS="$HOME/.local/bin/dmscripts/dmpass"		# Sudo askpass
+export SUDO_ASKPASS="$HOME/.local/bin/dmscripts/dmpass"	# Sudo askpass
 export LESS=-R
 export LESS_TERMCAP_mb="$(printf '%b' '[1;31m')"
 export LESS_TERMCAP_md="$(printf '%b' '[1;36m')"
