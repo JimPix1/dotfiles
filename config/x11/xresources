@@ -1,10 +1,3 @@
-!! Sets up xautolocks locker and autolocking on inactivity
-! xautolock
-/* Xautolock.notifier: notify-send -u critical -t 70000 "Locking Screen Soon.." "Move cursor or hit a key to stop this." */
-/* Xautolock.notify: 70 */
-Xautolock.time: 10
-Xautolock.locker: /usr/local/bin/slock xset dpms force off
-
 !! Transparency (0-1):
 *.alpha: 0.8
 
