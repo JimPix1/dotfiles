@@ -2,7 +2,7 @@
 
 /* Constants */
 #define TERMINAL "st"
-#define TERMCLASS "St"
+#define BROWSER "firefox"
 
 /* Appearance */
 static unsigned int borderpx  = 3;    /* border pixel of windows */
@@ -71,11 +71,6 @@ static const Rule rules[] = {
 	/* class    	               instance      title          	      tags mask    isfloating   isterminal  noswallow  monitor */
 	{ "Gimp",     	               NULL,         NULL,       	      0,           0,           0,          0,         0 },
         /* General */
-	{ "firefox",		       NULL,         NULL,     		      1 << 8,      0,           0,          0,         0 },
-	{ "qBittorrent",               NULL,         NULL,      	      1 << 3,      0,           0,          0,         0 },
-	{ "Yad",                       NULL,         NULL,      	      0,           1,           0,          0,         0 },
-	{ "scrcpy",		       NULL,         NULL,      	      0,           1,           0,          0,         0 },
-	{ "Steam",                     NULL,         NULL,     		      1 << 6,      0,           0,          0,         0 },
 	{ TERMINAL,                    NULL,         NULL,       	      0,           0,           1,          0,         0 },
 	/* Title Assigns */
 	{ NULL,                        NULL,         "Event Tester",  	      0,           0,           0,          1,         0 },
@@ -83,36 +78,6 @@ static const Rule rules[] = {
 	{ NULL,                        NULL,         "Weather Report",        0,           1,           0,          0,         0 },
 	{ NULL,                        NULL,         "Current Moon Phase",    0,           1,           0,          0,         0 },
 	{ NULL,                        NULL,         "Network Manager",       0,           1,           0,          0,         0 },
-	{ NULL,                        NULL,         "Steam", 	 	      1 << 6,      0,           0,          0,         0 },
-	/* Games */
-	{ NULL,                        NULL,         "Mindustry",             1 << 5,      0,           0,          0,         0 },
-	{ "voxygen",                   NULL,         NULL,           	      1 << 5,      0,           0,          0,         0 },
-	{ "openspades",                NULL,         NULL,      	      1 << 5,      0,           0,          0,         0 },
-	{ "BetterSpades v0.1.5",       NULL,         NULL,      	      1 << 5,      0,           0,          0,         0 },
-	{ "ShovelKnight",              NULL,         NULL,      	      1 << 5,      0,           0,          0,         0 },
-	{ "Wine",                      NULL,         NULL,      	      1 << 5,      0,           0,          0,         0 },
-	{ "Hollow Knight",	       NULL,         NULL,      	      1 << 5,      0,           0,          0,         0 },
-	{ "Kingdom Rush",              NULL,         NULL,                    1 << 5,      0,           0,          0,         0 },
-	{ "Kingdom Rush Frontiers",    NULL,         NULL,      	      1 << 5,      0,           0,          0,         0 },
-	{ "KingdomsAndCastles.x86_64", NULL,         NULL,      	      1 << 5,      0,           0,          0,         0 },
-	{ "btd5-win.exe",              NULL,         NULL,                    1 << 5,      0,           0,          0,         0 },
-	{ "factorio",		       NULL,         NULL,      	      1 << 5,      0,           0,          0,         0 },
-	{ "Kingdom Rush",              NULL,         NULL,                    1 << 5,      0,           0,          0,         0 },
-	{ "supertuxkart",              NULL,         NULL,     		      1 << 5,      0,           0,          0,         0 },
-	{ "supertux2",                 NULL,         NULL,                    1 << 5,      0,           0,          0,         0 },
-	{ "TotallyAccurateBattleSimulator", NULL,    NULL,      	      1 << 5,      0,           0,          0,         0 },
- 	  // Minecraft
-	{ "Minecraft* 1.18.1",         NULL,         NULL,                    1 << 5,      0,           0,          0,         0 },
-	{ "minecraft-launcher",        NULL,         NULL,                    1 << 5,      1,           0,          0,         0 },
-	{ "Minecraft Launcher",        NULL,         NULL,                    1 << 5,      1,           0,          0,         0 },
-	  // Steam Games
-	{ "steam_proton", 	       NULL,         NULL,                    1 << 5,      0,           0,          0,         0 },
-	{ "hl2_linux",        	       NULL,         NULL,      	      1 << 5,      0,           0,          0,         0 }, // tf2 + hl
-	{ "steam_app_7670", 	       NULL,         NULL,                    1 << 5,      0,           0,          0,         0 }, // bioshock
-	{ "steam_app_409710", 	       NULL,         NULL,                    1 << 5,      0,           0,          0,         0 }, // bioshock remastered
-	{ "steam_app_291550",          NULL,         NULL,                    1 << 5,      0,           0,          0,         0 }, // brawlhalla
-	{ "steam_app_960090",          NULL,         NULL,                    1 << 5,      0,           0,          0,         0 }, // bloons td 6
-	{ "steam_app_674940",          NULL,         NULL,                    1 << 5,      0,           0,          0,         0 }, // stick fight
 	/* Scratchpads */
 	{ TERMINAL,                    "spnvim",     NULL,                    SPTAG(0),    1,           1,          0,         0 },
 	{ TERMINAL,                    "spcmus",     NULL,                    SPTAG(1),    1,           1,          0,         0 },
@@ -262,25 +227,26 @@ static Key keys[] = {
 	{ MODKEY|ControlMask|ShiftMask, XK_Left,   	moveresizeedge,  {.v = "L"} },
 	{ MODKEY|ControlMask|ShiftMask, XK_Right,  	moveresizeedge,  {.v = "R"} },
 
-	{ 0,			        XF86XK_AudioMute,    	   spawn,	SHCMD("pamixer -t; pkill -RTMIN+6 dwmblocks") }, // mute
-	{ 0,			        XF86XK_AudioRaiseVolume,   spawn,	SHCMD("pamixer --allow-boost -i 5; pkill -RTMIN+6 dwmblocks") }, // vol up
-	{ 0,			        XF86XK_AudioLowerVolume,   spawn,	SHCMD("pamixer --allow-boost -d 5; pkill -RTMIN+6 dwmblocks") }, // vol down
-	{ MODKEY,			XK_p,   		   spawn,	SHCMD("playerctl pause") }, // player pause
-	{ 0,				XF86XK_AudioPlay,   	   spawn,	SHCMD("playerctl play") },  // player play
-	{ 0,				XF86XK_AudioNext,   	   spawn,	SHCMD("playerctl next") },  // player next
-	{ 0,				XF86XK_AudioPrev,   	   spawn,	SHCMD("playerctl previous") },  // player previous
-	{ 0,				XF86XK_MonBrightnessDown,  spawn,	SHCMD("xbacklight -dec 10") },  // brightness down
-	{ 0,				XF86XK_MonBrightnessUp,    spawn,	SHCMD("xbacklight -inc 10") },  // brightness up
-	{ ControlMask,			XK_F2,   	 	   spawn,	SHCMD("xbacklight -set 0") },   // brightness min
-	{ ControlMask,			XK_F3,   	 	   spawn,	SHCMD("xbacklight -set 100") }, // brightness reset
+ 	{ MODKEY,			XK_p,  			   spawn,	{.v = (const char*[]){ "playerctl", "pause", NULL } } },
+ 	{ 0,				XF86XK_AudioPlay,  	   spawn,	{.v = (const char*[]){ "playerctl", "play", NULL } } },
+ 	{ 0,				XF86XK_AudioNext,  	   spawn,	{.v = (const char*[]){ "playerctl", "next", NULL } } },
+ 	{ 0,				XF86XK_AudioPrev,  	   spawn,	{.v = (const char*[]){ "playerctl", "previous", NULL } } },
+ 	{ 0,				XF86XK_MonBrightnessDown,  spawn,	{.v = (const char*[]){ "xbacklight", "-dec", "10", NULL } } },
+ 	{ 0,				XF86XK_MonBrightnessUp,    spawn,	{.v = (const char*[]){ "xbacklight", "-inc", "10", NULL } } },
+ 	{ ControlMask,			XK_F2,  		   spawn,	{.v = (const char*[]){ "xbacklight", "-set", "0", NULL } } },
+ 	{ ControlMask,			XK_F3,  		   spawn,	{.v = (const char*[]){ "xbacklight", "-set", "100", NULL } } },
+	{ 0,			        XF86XK_AudioMute,    	   spawn,	SHCMD("pamixer -t; pkill -RTMIN+6 dwmblocks") },
+	{ 0,			        XF86XK_AudioRaiseVolume,   spawn,	SHCMD("pamixer --allow-boost -i 5; pkill -RTMIN+6 dwmblocks") },
+	{ 0,			        XF86XK_AudioLowerVolume,   spawn,	SHCMD("pamixer --allow-boost -d 5; pkill -RTMIN+6 dwmblocks") },
 
-	{ MODKEY,			XK_d,			   spawn,	SHCMD("dmenu_run -c -bw 2 -g 2 -l 13 -fn mono-10") }, // dmenu_run
-	{ MODKEY|ShiftMask,		XK_d,	           	   spawn,	SHCMD("dmkill") },   // dmenu script to kill programs etc.
-	{ MODKEY|ShiftMask,		XK_q,	           	   spawn,	SHCMD("dmlogout") }, // sys actions
-	{ MODKEY,			XK_numbersign,	           spawn,	SHCMD("dmnote") },   // dmenu script for notes
-	{ MODKEY|ShiftMask,		XK_numbersign,	           spawn,	SHCMD("$TERMINAL -e $EDITOR ~/dox/notes/notes.md") }, // notes.md
-	{ MODKEY|ControlMask,		XK_numbersign,	           spawn,	SHCMD("$TERMINAL -e $EDITOR ~/dox/notes/mcnotes.md") }, // minecraft notes
-	{ MODKEY,			XK_n,			   spawn,	SHCMD(TERMINAL " -e lfrun") }, // lf file manager
+ 	{ MODKEY, 			XK_b,		   	   spawn,	{.v = (const char*[]){ BROWSER, NULL } } },
+ 	{ MODKEY,			XK_n,			   spawn,	{.v = (const char*[]){ TERMINAL, "-e", "lfrun", NULL } } },
+ 	{ MODKEY,			XK_d,		   	   spawn,	{.v = (const char*[]){ "dmrun", NULL } } },
+ 	{ MODKEY|ShiftMask,		XK_q,			   spawn,	{.v = (const char*[]){ "dmlogout", NULL } } },
+ 	{ MODKEY|ShiftMask,		XK_d,			   spawn,	{.v = (const char*[]){ "dmkill", NULL } } },
+ 	{ MODKEY,			XK_numbersign,		   spawn,	{.v = (const char*[]){ "dmnote", NULL } } },
+	{ MODKEY|ShiftMask,		XK_numbersign,	           spawn,	SHCMD("$TERMINAL -e $EDITOR ~/dox/notes/notes.md") },
+	{ MODKEY|ControlMask,		XK_numbersign,	           spawn,	SHCMD("$TERMINAL -e $EDITOR ~/dox/notes/mcnotes.md") },
 };
 
 /* Button definitions */
@@ -296,7 +262,7 @@ static Button buttons[] = {
 	{ ClkStatusText,        ShiftMask,   	    Button3,      sigdwmblocks,    {.i = 7} },
 	{ ClkStatusText,        ControlMask,   	    Button1,      sigdwmblocks,    {.i = 8} },
 
-	{ ClkStatusText,        ShiftMask,          Button2,      spawn,           SHCMD(TERMINAL " -e nvim ~/.local/src/dwmblocks/config.h") },
+	{ ClkStatusText,        ShiftMask,          Button2,      spawn,           SHCMD("$TERMINAL -e $EDITOR ~/.local/src/dwmblocks/config.h") },
 	{ ClkClientWin,         MODKEY,             Button1,      movemouse,       {0} },
 	{ ClkClientWin,         MODKEY|ShiftMask,   Button1,      togglefloating,  {0} },
 	{ ClkClientWin,         MODKEY,             Button2,      defaultgaps,     {0} },

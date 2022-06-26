@@ -7,6 +7,7 @@ url="https://search.brave.com/search?q="
 # Searching with the engine.
 query=$(:|dmenu -p 'Enter Brave query:') || exit
 
-query="$(echo "${query}" | jq -s -R -r @uri)"
+query="$(echo "${query}" | sed 's/ /+/g')"
+
 # Display search results in web browser
 $BROWSER "${url}${query}"

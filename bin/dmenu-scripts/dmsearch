@@ -72,7 +72,7 @@ main() {
   # Searching the chosen engine.
   query=$(:|dmenu -p "Enter ${engine} query:")
 
-  query="$(echo "${query}" | jq -s -R -r @uri)"
+  query="$(echo "${query}" | sed 's/ /+/g')"
   # Display search results in web browser
   $BROWSER "${url}${query}"
 }
