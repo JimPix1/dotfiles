@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Open sxiv with all your shuffled wallpapers
+
+find ~/pix/wallpapers/wallpapers-master | shuf | sxiv -t -

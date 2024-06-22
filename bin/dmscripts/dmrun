@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Custom dmenu_run
+
+dmenu_run -c -bw 2 -g 2 -l 12 -fn mono-10

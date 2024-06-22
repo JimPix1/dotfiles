@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# Script for setting the sensitivity of the touchpad, trackpoint and mouse
+
+# Increase touchpad sensitivity
+xinput --set-prop "SynPS/2 Synaptics TouchPad" "libinput Accel Speed" 0.28
+
+# Decrease the ThinkPad's trackpoint (nipple) sensitivity
+xinput --set-prop "TPPS/2 Elan TrackPoint" "libinput Accel Speed" -0.43
+
+# Adjust Lenovo mouse sensitivity if plugged in
+MOUSE=/sys/class/input/mouse0/device/uevent
+
+while true; do
+        if [ -z "$(ls "$MOUSE" 2>/dev/null | grep -q "PixArt Lenovo USB Optical Mouse" )" ]; then
+	   xinput --set-prop "PixArt Lenovo USB Optical Mouse" "libinput Accel Speed" -0.70 2>/dev/null
+	fi
+    sleep 3
+done

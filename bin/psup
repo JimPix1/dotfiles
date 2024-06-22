@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Re-compile PixSpades and optionally restore your custom BetterSpades directory
+
+cd ~/.local/share/games/PixSpades || exit
+
+# Optionally make a new save
+printf "Create a new save? [y/N]: "
+read -r yn
+    case $yn in
+	    [Yy]*) echo "Creating a new save."
+		   rm -rf save
+		   cp -r files/build/BetterSpades save
+		   echo "Save created!" ;;
+	    *) echo "New save not created."
+    esac
+
+# Cd to the build directory and compile it
+echo "Compiling PixSpades..."
+cd files/build || exit
+make
+echo "Finished Compiling."
+
+# Optionally restore the BetterSpades directory save
+printf "Restore custom BetterSpades directory? [y/N]: "
+read -r yn
+    case $yn in
+	    [Yy]*) echo "Restoring custom BetterSpades directory." ;;
+	    *) echo "Custom BetterSpades directory NOT restored." && exit ;;
+    esac
+
+# Restore the custom BetterSpades directory but with the new client binary
+cd ~/.local/share/games/PixSpades || exit
+rm -rf save/pixspades
+mv -f files/build/BetterSpades/client save/pixspades
+rm -rf files/build/BetterSpades
+cp -r save files/build/BetterSpades
+echo "Custom BetterSpades directory restored!" && exit

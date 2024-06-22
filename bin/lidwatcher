@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Check when the laptop lid is closed and lock accordingly
+
+# Constants
+LID=/proc/acpi/button/lid/LID0/state
+STATE=/sys/class/power_supply/BAT0/status
+
+while true; do
+  # Check if the lid is closed
+  if grep -q closed $LID; then
+	# If battery is full then lock
+	if grep -q Full $STATE; then
+	   /usr/local/bin/slock
+	# If battery is charging then lock
+	elif grep -q Charging $STATE; then
+	   /usr/local/bin/slock
+	else
+	# If battery is discharging then lock and suspend
+	   /usr/local/bin/slock systemctl --no-wall suspend
+  fi
+	fi
+  sleep 2
+done

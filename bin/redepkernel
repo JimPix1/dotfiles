@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Select a snapshot
+SNAPSHOT="$(exa -D /run/timeshift/backup/timeshift-btrfs/snapshots | \
+	    dmenu -l 30 -1 -i -fn mono-10 -o 1 -p 'Choose snapshot:')" || exit
+
+# Mount the root subvolume and boot partition
+sudo mount -o subvol="timeshift-btrfs/snapshots/$SNAPSHOT/@" /dev/nvme0n1p2 /mnt
+sudo mount -o subvol="timeshift-btrfs/snapshots/$SNAPSHOT/@home" /dev/nvme0n1p2 /mnt/home
+sudo mount /dev/nvme0n1p1 /mnt/boot
+
+# Chroot into snapshot
+sudo arch-chroot /mnt zsh -c "pacman -S linux-zen"
+
+# Unmount all subvols and partitions
+sudo umount /mnt/boot
+sudo umount /mnt/home
+sudo umount /mnt
+
+echo "Kernel Redeployed!"
+
+# Restore the chosen snapshot
+sudo timeshift --restore --snapshot "$SNAPSHOT"
+echo "Snapshot Restored!"

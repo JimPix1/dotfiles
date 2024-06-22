@@ -1,0 +1,205 @@
+#!/bin/sh
+
+# Select a game to play using dmenu
+# The game must have a start script like [games dir]/[GAME]/start.sh
+# This script is primarily for johncena141 games (see their 1337x page)
+# although it can be used for non-jc141 games if you make a directory and start script for the game.
+# Written by JimPix (github.com/JimPix1)
+
+# Forbid using Chad Launcher with sudo or as a root user
+[ "$(id -u)" = "0" ] && echo "Don't use sudo or root user to run Chad Launcher!" && exit 1
+
+# Cd into the directory containing your games (change if different)
+gamelist="$XDG_DATA_HOME/games"
+cd "$gamelist" || exit 1
+
+# Remove '-jc141' from any file or directory containing it in it's name
+# but only if there are no onzgoing torrents with '-jc141' in them.
+if cat "$XDG_DATA_HOME"/qBittorrent/BT_backup/*.torrent 2>/dev/null | grep -qi --binary-files=text "\-jc141"; then
+	echo "Ongoing dwarFS game torrents! Can't rename directory(s)"
+elif exa -D | grep -Eq "\-jc141|\-Jc141" 2>/dev/null; then
+	for file in *; do mv "$file" "$(echo "$file" | sed 's/\-jc141$//;s/\-Jc141$//')"; done 2>/dev/null
+fi
+
+# Find how many lines long the list of games must be.
+# If the number of games isn't an integer then add one extra line
+if echo "$(exa -D -I="GAME-SAVES" | wc -l)/4" | bc -l | grep -q '\.[1-9]'; then
+    LINES="$(echo "$(exa --oneline -D -I="GAME-SAVES" | wc -l)/4+1" | bc)"
+else
+    LINES="$(echo "$(exa --oneline -D -I="GAME-SAVES" | wc -l)/4" | bc)"
+fi
+
+# Show the list of your playable games in dmenu
+game="$(exa --color never --oneline -D -I="GAME-SAVES" | sed 's/\./ /g;/\-jc141/d' | \
+	dmenu -l "$LINES" -1 -i -fn mono-10 -g 4 -o 1 -p 'Choose game:')" || exit
+
+# The directory name of the chosen game (i.e periods in-between words instead of spaces)
+gamedir="$(echo "$game" | sed 's/ /\./g')"; choice="$(echo "$game" | sed 's/ /\./g')"
+
+# Find the correct game start script to use
+if [ -e "$(ls "$gamedir"/*start* 2>/dev/null)" ]; then
+	RUN="$(ls "$gamedir"/*start*)" || exit 1
+# If the chosen game entry contains multiple game dirs, search for start scripts in those game directories instead
+   elif [ -n "$(ls "$gamedir"/*/*start* 2>/dev/null)" ]; then
+	game="$(exa -D "$gamedir" | sed 's/\./ /g' | dmenu -1 -i -l 37 -fn mono-10 -o 1 -p 'Select game:')" || exit
+	choice="$(echo "$game" | sed 's/ /\./g')"; gamedir="$gamedir"/"$choice"
+	RUN="$(ls "$gamedir"/*start*)" || exit 1
+# If the entry is a new collection release, it must be handled differently
+   elif [ -n "$(ls "$gamedir"/*start* 2>/dev/null)" ]; then
+	game="$(cd "$gamedir"; find -- *start* | sed 's/\.sh/?/g' | sed 's/\./ /g' | sed 's/start/Start/g' | \
+		dmenu -1 -i -l 37 -fn mono-10 -o 1 -p 'Select game:')" || exit
+	choice="$(echo "$game" | sed 's/ /\./g' | sed 's/?/\.sh/g' | sed 's/Start/start/g')"
+	RUN="$gamedir"/"$choice" || exit 1
+	game="$(echo "$game" | sed 's/?//g' | sed 's/Start //g')"
+# Exit if no start scripts are found and send a notification
+   else notify-send "🚫 No start scripts found!" && exit 1
+fi
+
+
+#------------------------------------#
+# Options for when you select a game #
+#------------------------------------#
+
+# If the game data ([GAME]/files/data) is found give an option to move the data to ~/.cache
+# Deprecated as the newest 1337 releases no longer use isolation
+# and chad-launcher uses a unified isolation system therefore making this option redundant.
+if [ -d "$gamedir"/files/data ]; then
+   if [ -e "$(ls "$gamedir"/files/groot.dwarfs 2>/dev/null)" ]; then
+      answer="$(printf "Quit\nStart\nExtract Game\nOpen in lf\nMove Data\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
+   else
+      answer="$(printf "Quit\nStart\nOpen in lf\nMove Data\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
+   fi
+
+# Check to see if the game's data is in ~/.cache and give the option to return it to the game directory
+# Deprecated as the newest 1337 releases no longer use isolation
+# and chad-launcher uses a unified isolation system therefore making this option redundant.
+elif [ -d "$XDG_CACHE_HOME"/"$choice"-Data ]; then
+     if [ -e "$(ls "$gamedir"/files/groot.dwarfs 2>/dev/null)" ]; then
+        answer="$(printf "Quit\nStart\nExtract Game\nOpen in lf\nMove Data\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
+     else
+        answer="$(printf "Quit\nStart\nOpen in lf\nReturn Data\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
+     fi
+
+# If the game isn't a new-ish 1337x release or doesn't use isolation, use this prompt instead
+elif [ -e "$(ls "$gamedir"/files/groot.dwarfs 2>/dev/null)" ]; then
+     answer="$(printf "Quit\nStart\nExtract Game\nOpen in lf\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
+     else
+     answer="$(printf "Quit\nStart\nOpen in lf\nCopy Game\nMove Game\nDelete Game" | dmenu -fn mono-10 -1 -i -p "Start $game?")" || exit
+fi
+
+	# Start the game and send a notification to tell you it's starting. Uses isolation and puts game saves in ~/game-saves
+        if [ "$answer" = "Start" ]; then
+           notify-send "🎮 Starting Game:" '<b><span foreground="yellow">💻 '"$game"'</span></b>' # Send a notification
+	   if echo "$RUN" | grep -Eq "export XDG_DATA_HOME=|export HOME="; then
+		  sed -E -i 's/export HOME="\$PWD\/files\/data"; |export XDG_DATA_HOME="\$PWD\/files\/data\/.local"; |export XDG_CONFIG_HOME="\$PWD\/files\/data\/.config"; |mkdir -p \{"\$HOME","\$XDG_CONFIG_HOME","\$XDG_DATA_HOME"\}|\[ \! -d "\$JCDN" \] && mkdir -p "\$JCDN"; |export HOME="\$JCDN"; |export XDG_DATA_HOME="\$JCDN\/local"; |export XDG_CONFIG_HOME="\$JCDN\/config";|export JCD="\$\{XDG_DATA_HOME:-\$HOME/.local/share\}\/jc141"; |\[ \! -d "\$JCD\/wine" \] && mkdir -p "\$JCD\/wine"|export HOME="\$R\/files\/data"; |export XDG_DATA_HOME="\$R\/files\/data\/.local"; |export XDG_CONFIG_HOME="\$R\/files\/data\/.config";//g'
+	   fi
+	   # Use my naming of the Documents directory
+#	   if grep "bwrap" "$RUN"; then
+#	     sed -i 's/Documents/dox/' "$RUN"
+	     # Set variables and start
+#             XDG_DATA_HOME="$gamelist/GAME-SAVES/data" XDG_CONFIG_HOME="$gamelist/GAME-SAVES/config" HOME="$gamelist/GAME-SAVES" JCD="$gamelist/GAME-SAVES/data/jc141" SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0 GAMESCOPE=0 BLOCK_NET=1 ISOLATION=0 DBG=0 \
+#	   bash "$RUN" && exit 0 # Run the game and exit
+#   	   else
+             XDG_DATA_HOME="$gamelist/GAME-SAVES/data" XDG_CONFIG_HOME="$gamelist/GAME-SAVES/config" HOME="$gamelist/GAME-SAVES" JCD="$gamelist/GAME-SAVES/data/jc141" SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS=0 GAMESCOPE=0 BLOCK_NET=0 ISOLATION=0 DBG=0 \
+	   bash "$RUN" && exit 0 # Run the game and exit
+#	   fi
+
+	# Automatically extract dwarfs games and then delete the dwarfs file
+        elif [ "$answer" = "Extract Game" ]; then
+		if [ -e "$(ls "$gamedir"/files/groot.dwarfs 2>/dev/null)" ]; then
+		   notify-send -t 2400 "📦 Extracting DwarFS:" '🎮 <b><span foreground="magenta">'"$game"'</span></b>'
+		   if [ -e "$(ls "$gamedir"/settings.sh 2>/dev/null)" ]; then
+		      if grep -q "delete-dwarfs-image" "$gamedir"/settings.sh; then
+		   	 cd "$gamedir" || exit
+			 bash settings.sh extract-dwarfs
+		      	 bash settings.sh delete-dwarfs-image
+			 rm -Rf files/groot-work
+		         cd ..
+		   	 notify-send -t 2400 "📦 Extraction Complete!" '🎮 <b><span foreground="blue">'"$game"'</span></b>'
+		      else
+		   	 cd "$gamedir" || exit
+			 # Old settings file
+			 bash settings.sh extract-dwarfs
+			 bash settings.sh delete-dwarfs
+			 # Newer settings file
+			 bash settings.sh extract
+		      	 bash settings.sh delete-image
+			 rm -Rf files/groot-work
+		         cd ..
+		   	 notify-send -t 2400 "📦 Extraction Complete!" '🎮 <b><span foreground="blue">'"$game"'</span></b>'
+		      fi
+		   elif [ -e "$(ls "$gamedir"/dwarfsettings.sh 2>/dev/null)" ]; then
+		      if grep -q "extract-game" "$gamedir"/dwarfsettings.sh; then
+		   	 cd "$gamedir" || exit
+ 		         bash dwarfsettings.sh extract-game
+		         rm -Rf files/groot.dwarfs files/groot-work
+		         cd ..
+		   	 notify-send -t 2400 "📦 Extraction Complete!" '🎮 <b><span foreground="blue">'"$game"'</span></b>'
+		      elif grep -q "extract()" "$gamedir"/dwarfsettings.sh; then
+		   	 cd "$gamedir" || exit
+ 		         bash dwarfsettings.sh extract
+		         rm -Rf files/groot.dwarfs files/groot-work
+		         cd ..
+		   	 notify-send -t 2400 "📦 Extraction Complete!" '🎮 <b><span foreground="blue">'"$game"'</span></b>'
+		      fi
+		   fi
+		fi
+
+	# Open the game directory in lf (file manager)
+        elif [ "$answer" = "Open in lf" ]; then
+	   "$TERMINAL" -e lfrun "$gamedir" && exit 0
+
+	# Move the save data of the chosen game to ~/.cache (only works with new 1337 releases)
+	# Deprecated as the newest 1337 releases no longer use isolation
+	# and chad-launcher uses a unified isolation system therefore making this option redundant.
+	elif [ "$answer" = "Move Data" ]; then
+             mvdata="$(printf "Don't move\nMove game data" | dmenu -fn mono-10 -1 -i -p "Move $game data to $XDG_CACHE_HOME?")" || exit
+             if [ "$mvdata" = "Move game data" ]; then
+	        cd "$gamedir"/files || exit 1
+	        mv -f data "$XDG_CACHE_HOME"/"$choice"-Data # Move the data
+	        notify-send "📦 Moved successfully!" '🎮 Data of <b><span foreground="magenta">'"$game"'</span></b>' && exit 0
+	     else notify-send "❌ $game data not copied" && exit 1
+	     fi
+
+	# Move the chosen game's data in ~/.cache back to the game directory
+	# Deprecated as the newest 1337 releases no longer use isolation
+	# and chad-launcher uses a unified isolation system therefore making this option redundant.
+	elif [ "$answer" = "Return Data" ]; then
+	     cd "$gamedir"/files || exit 1
+ 	     if [ -d "$XDG_CACHE_HOME"/"$choice"-Data ]; then
+	        mv -f "$XDG_CACHE_HOME"/"$choice"-Data data # Return the data
+		notify-send "🔄 Returned successfully!" '🎮 Data of <b><span foreground="blue">'"$game"'</span></b>' && exit 0
+ 	     else notify-send "🚫 Data not found" 'No <b><span foreground="red">'"$choice"'-Data</span></b> directory found in <span foreground="teal">'"$XDG_CACHE_HOME"'</span>' && exit 1
+	     fi
+
+	# Copy the game directory to ~/.cache
+	elif [ "$answer" = "Copy Game" ]; then
+             cpgame="$(printf "Don't copy\nCopy game" | dmenu -fn mono-10 -1 -i -p "Copy $game to $XDG_CACHE_HOME?")" || exit
+             if [ "$cpgame" = "Copy game" ]; then
+	        cp -R "$gamedir" "$XDG_CACHE_HOME"/"$choice"-Copy # Copy the game
+	        notify-send "✅ Copied successfully!" '<b><span foreground="green">🎮 '"$game"'</span></b>' && exit 0
+	     else notify-send "❌ $game not copied" && exit 1
+	     fi
+
+	# Move the game directory to ~/.cache
+	elif [ "$answer" = "Move Game" ]; then
+             mvgame="$(printf "Don't move\nMove game" | dmenu -fn mono-10 -1 -i -p "Move $game to $XDG_CACHE_HOME?")" || exit
+             if [ "$mvgame" = "Move game" ]; then
+	        mv -f "$gamedir" "$XDG_CACHE_HOME"/"$choice"-Orig # Move the game
+	        notify-send "📦 Moved successfully!" '<b><span foreground="magenta">🎮 '"$game"'</span></b>' && exit 0
+	     else notify-send "❌ $game not moved" && exit 1
+	     fi
+
+	# Delete the game permanently
+	elif [ "$answer" = "Delete Game" ]; then
+             delgame="$(printf "Don't delete it!\nDelete the game forever!" | dmenu -fn mono-10 -1 -i -p "Really delete $game permanently?")" || exit
+             if [ "$delgame" = "Delete the game forever!" ]; then
+                rm -rf "$gamedir" # Delete the game
+	        notify-send "💣 Deleted successfully!" '<b><span foreground="red">🎮 '"$game"'</span></b> has been deleted' && exit 0
+             else notify-send "❌ $game not deleted" && exit 1
+	     fi
+
+	# If "Quit" is selected after a game is chosen then exit and send a notification
+        else
+             notify-send -t 2400 "🚫 Game not started:" '<b><span foreground="red">🎮 '"$game"'</span></b>' && exit 1
+        fi

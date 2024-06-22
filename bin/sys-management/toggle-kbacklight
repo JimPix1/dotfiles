@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Toggle the keyboard backlight on or off
+
+file="/sys/class/leds/tpacpi::kbd_backlight/brightness"
+
+if cat "$file" | grep -q "2"; then
+        echo 0 > "$file"
+	notify-send "💻 Keyboard Backlight" '<b><span foreground="red">❌ Disabled!</span></b>'
+else
+	echo 2 > "$file"
+	notify-send "💻 Keyboard Backlight" '<b><span foreground="green">✅ Enabled!</span></b>'
+fi

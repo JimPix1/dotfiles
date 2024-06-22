@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Show what kind of recording is ongoing
+
+case $BLOCK_BUTTON in
+	1) dmrecord ;;
+	2) dmrecord kill ;;
+	3) notify-send "🎥Record module " "\- Click to show dmenu record
+- Middle click to stop recording" ;;
+	6) $TERMINAL -e $EDITOR "$0" ;;
+esac
+
+cat /tmp/recordingicon 2>/dev/null

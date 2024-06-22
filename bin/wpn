@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Open sxiv with all your wallpapers in order
+
+find ~/pix/wallpapers/wallpapers-master | sxiv -t -

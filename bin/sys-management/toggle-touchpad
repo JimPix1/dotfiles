@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Toggle the touchpad on or off
+
+touchpad="SynPS/2 Synaptics TouchPad"
+
+if xinput list-props "$touchpad" | grep "Device Enabled" | grep -q "1$"; then
+	xinput disable "$touchpad"
+	notify-send "💻 Touchpad" '<b><span foreground="red">❌ Disabled!</span></b>'
+else
+	xinput enable "$touchpad"
+	notify-send "💻 Touchpad" '<b><span foreground="green">✅ Enabled!</span></b>'
+fi

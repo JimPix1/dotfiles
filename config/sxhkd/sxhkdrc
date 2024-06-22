@@ -1,0 +1,281 @@
+#!/bin/sh
+
+# Keybinds listed in alphabetical order
+
+#A
+
+# aliasrc (zsh)
+super + shift + m
+ "$TERMINAL" -e "$EDITOR" "$ZDOTDIR"/aliasrc
+
+# autoclicker
+super + shift + bracketleft
+ autoclicker
+
+#C
+
+# chad launcher
+super + equal
+ chad-launcher
+
+#D
+
+# display off
+@F7
+ sleep 0.5; xset dpms force off
+
+#H
+
+# htop
+super + period
+ "$TERMINAL" -e htop
+
+#L
+
+# lf file manager (sudo)
+super + shift + n
+ "$TERMINAL" -T "sudo lf" -e sudo -A -E lf
+
+# libreoffice
+super + shift + w
+ libreoffice
+
+# lid suspend toggle
+super + Escape
+ toggle-lidsuspend
+# enable lidwatcher suspend
+super + ctrl + Escape
+ kilall lidwatcher lidwatcher-no-suspend; lidwatcher &; notify-send "💻 Lidwatcher enabled!"
+# disable lidwatching entirely
+super + shift + Escape
+ killall lidwatcher lidwatcher-no-suspend; notify-send "💻 Lidwatcher disabled!"
+
+#M
+
+# moon phase
+super + ctrl + m
+ "$TERMINAL" -T "Moon Phase" -e zsh -c "curl wttr.in/moon; read"
+
+#N
+
+# nmtui popup
+super + shift + apostrophe
+ "$TERMINAL" -T "Network Manager" -g 55x40 -e nmtui-connect
+
+# neovim
+super + shift + x
+ "$TERMINAL" -e nvim
+
+#P
+
+# pavucontrol
+super + shift + p
+ pavucontrol
+
+# pcmanfm
+super + ctrl + n
+ pcmanfm
+
+# pixspades
+super + shift + z
+ pixspades
+# view latest pixspades log
+super + ctrl + z
+ "$TERMINAL" -e "$EDITOR" "$XDG_DATA_HOME"/games/PixSpades/files/build/BetterSpades/logs/"$(date '+%d-%m-%Y')".log
+
+# suspend key
+XF86PowerOff
+ slock systemctl --no-wall suspend
+shift + XF86PowerOff
+ systemctl --no-wall suspend
+super + XF86PowerOff
+ systemctl --no-wall poweroff
+
+#Q
+
+# qbittorrent
+super + bracketleft
+ qbittorrent
+
+#S
+
+# samedir
+super + shift + s
+ samedir
+
+# scrcpy (phone)
+super + ctrl + bracketleft
+ scrcpy -m 1920
+
+# slock (locker)
+@F8
+ sleep 0.4; slock xset dpms force off
+
+# steam
+super + shift + equal
+ steam
+# open steam library
+super + ctrl + equal
+ steamlib
+
+# systeminfo notification
+super + shift + comma
+ systeminfo
+
+# sxhkd config
+super + m
+ "$TERMINAL" -e "$EDITOR" ~/.config/sxhkd/sxhkdrc
+
+#T
+
+# tabbed st
+super + shift + Return
+ tabbed -c -r 2 st -w ''
+
+# toggle touchpad
+super + grave
+ toggle-touchpad
+
+# toggle wifi
+shift + F8
+ rfkill toggle wifi
+
+# top
+super + shift + period
+ "$TERMINAL" -e top -d 1.5
+
+# tor browser
+super + bracketright
+ tor-browser
+
+#V
+
+# virt-manager
+super + ctrl + o
+ virt-manager
+
+#W
+
+# weather report
+super + w
+ "$TERMINAL" -g 125x38 -T "Weather Report" -e less "$XDG_DATA_HOME"/weatherreport
+
+#####################
+# Dmenu Scripts #DM #
+#####################
+
+# dman
+super + ctrl + d
+ dman
+
+# dmhandler
+super + shift + h
+ dmhandler
+
+# dmount
+shift + F4
+ dmount
+
+# dumount
+ctrl + F4
+ dumount
+
+# dmrecord
+shift + F1
+ dmrecord
+
+# dmrecordkill
+super + F1
+ dmrecord kill
+
+# dmconfedit
+super + shift + c
+ dmconfedit
+
+# dmcolpick
+super + ctrl + c
+ dmcolpick
+
+# dmsearch
+super + shift + b
+ dmsearch
+
+# dmtranslate
+super + shift + f
+ dmtranslate
+
+# dmunicode
+super + Insert
+ dmunicode
+
+# dmwebsites
+super + ctrl + b
+ dmwebsites
+
+# dmwebsite
+super + Delete
+ dmwebsite
+
+# dmwifi
+super + apostrophe
+ dmwifi
+
+##################
+# Print Keys #PR #
+##################
+
+# maim (region)
+Print
+ maim -s -b 2 -u -f png | xclip -selection clipboard -t image/png
+
+# maim fullscreen (save)
+shift + Print
+ maim -f png -u ~/pix/.screenshots/maim-full-"$(date '+%Y-%m-%d-%H-%Mm-%Ss')".png
+
+# dmscrot
+super + Print
+ dmscrot
+
+# dmscrot (delay)
+super + shift + Print
+ dmscrot-delay
+
+# pinta
+ctrl + Print
+ pinta
+
+# drawing
+ctrl + shift + Print
+ drawing
+
+################
+# Clipmenu #CM #
+################
+
+# clipmenu
+super + slash
+ clipmenu -i -l 13 -fn mono-11 -p "Copy:"
+
+# clipdel all
+super + shift + slash
+ clipdel -d ".*"
+
+ # clipdel (dmenu)
+super + ctrl + slash
+ for del in $(LC_ALL=C sort -rnk 1 < "$XDG_DATA_HOME"/clipmenu.6.matt/line_cache | cut -d' ' -f2- | awk '!seen[$0]++' | dmenu -i -fn mono-11 -l 21 -p "Delete:"); do clipdel -d "$del"; done
+
+################
+# Dunstctl #DC #
+################
+
+# dunst close
+super + Home
+ dunstctl close
+
+# dunst close all
+super + shift + Home
+ dunstctl close-all
+
+# dunst history popup
+super + End
+ dunstctl history-pop

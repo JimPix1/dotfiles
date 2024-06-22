@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Used with the autoclicker script
+
+while true; do
+	xdotool keydown w
+	xdotool mousedown 1
+	sleep 2.5
+	xdotool mouseup 1
+	xdotool mousemove_relative 0 700
+	xdotool mousedown 1
+	sleep 2.5
+	xdotool mouseup 1
+	xdotool mousemove_relative 0 -700
+	sleep 2
+done

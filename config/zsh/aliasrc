@@ -1,0 +1,160 @@
+#!/bin/sh
+
+# Use $XINITRC variable if file exists.
+[ -f "$XINITRC" ] && alias startx="startx $XINITRC"
+alias s="startx 2>/dev/null"
+
+# These common commands are just too long! Abbreviate them.
+alias \
+	hist="nvim ~/.config/zsh/history" \
+	update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg" \
+	ks="killall" \
+	t="touch" \
+	z="zathura" \
+	low="libreoffice --writer" \
+	wft="xdg-mime query filetype" \
+	pcrcpy="scrcpy -m 1920" \
+	wttr="curl wttr.in/$LOCATION" \
+	tabst="tabbed -c -r 2 st -w ''" \
+	sus="systemctl --no-wall suspend" \
+	lus="slock systemctl --no-wall suspend" \
+	passgen="tr -dc A-Za-z0-9 </dev/urandom | head -c 15;echo ''" \
+	sana="systemd-analyze" \
+	sanab="systemd-analyze blame" \
+	szsh="source $ZDOTDIR/.zshrc; source $ZDOTDIR/aliasrc" \
+	kev="xev -event keyboard" \
+	dlock="slock xset dpms force off" \
+	systemctl="systemctl --no-wall" \
+	art="apack -e -F tar.gz" \
+	arz="apack -e -F zip" \
+	arc="apack -e -F" \
+	ap="apack" \
+	wttrfix="rm -rf ~/.local/share/weatherreport; killall dwmblocks; dwmblocks &" \
+	soydblt="rm -rf ~/Downloads ~/Desktop ~/.config/menus ~/.local/share/desktop-directories && pkgcln && du -sh /var/log/journal/ && sudo journalctl --vacuum-time=5d && coredumpctl" \
+	jrm="sudo rm -Rf /var/log/journal/b2575ef3fd124e41aa1e71138aa9c063; echo 'Journal removed'" \
+
+# Editor aliases
+alias \
+	v="$EDITOR" \
+	e="$EDITOR" \
+	sv="sudo -E $EDITOR" \
+	vsx="$EDITOR ~/.config/sxhkd/sxhkdrc" \
+	vzsh="$EDITOR $ZDOTDIR/.zshrc" \
+	val="$EDITOR $ZDOTDIR/aliasrc" \
+	vcon="$EDITOR config.h" \
+	dcon="cd ~/.local/src/dwm && make && $EDITOR config.h && sudo make install" \
+
+# Yay and pacman aliases
+alias \
+	y="yay" \
+	yi="yay -S" \
+	ys="yay -Ss" \
+	yr="yay -R" \
+	yrn="yay -Rn" \
+	yrs="yay -Rs" \
+	yrns="yay -Rns" \
+	up="yay -Syu" \
+	Sy="yay -Sy" \
+	pac="sudo pacman" \
+	pacs="pacman -Ss" \
+	paci="sudo pacman -S" \
+	pacr="sudo pacman -R" \
+	pacrn="sudo pacman -Rn" \
+	pacrs="sudo pacman -Rs" \
+	pacrns="sudo pacman -Rns" \
+	pkgcnt="pacman -Q | wc -l" \
+	pkgcln="sudo paccache -r -k 2 && yay -Ycu" \
+
+# Youtube-dl aliases
+alias \
+	yt="yt-dlp --add-metadata -i" \
+	ytv='yt -f bestvideo' \
+	yta='yt -x -f bestaudio/best' \
+	ytm='cd $MUSICDIR; yt -x -f bestaudio/best' \
+	ytmp3='yt-dlp -x --audio-format mp3 --audio-quality 0 --embed-thumbnail --add-metadata ' \
+	playlist='yt-dlp -o '\''%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s'\'' ' \
+	playlist3='yt-dlp -x --audio-format mp3 --audio-quality 0 --embed-thumbnail --add-metadata -o '\''%(playlist)s/%(playlist_index)s - %(title)s.%(ext)s'\'' ' \
+	tiktokdl='yt --cookies "cookies_files" --referer "https://www.tiktok.com/" -o "output.mp4" ' \
+
+# Translate-shell aliases
+alias \
+	ga="trans :ga" \
+	de="trans :de" \
+	en="trans :en" \
+	gai="trans :ga -I" \
+	dei="trans :de -I" \
+	eni="trans :en -I" \
+	ts="trans" \
+	tsd="trans -d" \
+
+# File manager aliases
+alias \
+	slf="sudo -E lf" \
+	lf="lfrun" \
+	lr="/usr/bin/lf" \
+	lfbin="lfrun ~/.local/bin/" \
+	lfsrc="lfrun ~/.local/src/" \
+	lfcon="lfrun $XDG_CONFIG_HOME/" \
+	lfdox="lfrun ~/dox/" \
+	lfdl="lfrun ~/dls/" \
+	lfpix="lfrun ~/pix/" \
+	lfsc="lfrun ~/pix/.screenshots/" \
+	lfsr="lfrun ~/.local/src/" \
+	lfsb="lfrun ~/.local/bin/statusbar/" \
+	lfdm="lfrun ~/.local/bin/dmscripts/" \
+	lfmus="lfrun $MUSICDIR" \
+	lfgm="lfrun ~/.local/share/games" \
+	lfvid="lfrun ~/vids/" \
+
+# cd aliases
+alias \
+	cdgm="cd ~/.local/share/games" \
+	cdcon="cd $XDG_CONFIG_HOME" \
+	cdbin="cd ~/.local/bin" \
+	cdsr="cd ~/.local/src" \
+	cdstat="cd ~/.local/bin/statusbar/" \
+	cddm="cd ~/.local/bin/dmscripts/" \
+	cdmus="cd $MUSICDIR" \
+	cdvid="cd ~/vids/" \
+	cdpix="cd ~/pix/" \
+	cddl="cd ~/dls/" \
+	cdox="cd ~/dox/" \
+
+# Camera and touchpad aliases
+alias \
+	tpon='xinput set-prop "SynPS/2 Synaptics TouchPad" "Device Enabled" 1' \
+	tpoff='xinput set-prop "SynPS/2 Synaptics TouchPad" "Device Enabled" 0' \
+	camoff="sudo modprobe -r uvcvideo" \
+	camon="sudo modprobe uvcvideo" \
+
+# Unixporn aliases
+alias \
+	neo="neofetch" \
+	pf="pfetch" \
+
+# Colorize commands when possible.
+alias \
+	grep="grep --color=auto" \
+	diff="diff --color=auto" \
+	ip="ip -color=auto" \
+
+# Verbosity and settings that you pretty much just always are going to want.
+alias \
+	cp="cp -ivR" \
+	mv="mv -iv" \
+	rm="rm -vI" \
+	bc="bc -ql" \
+	mkd="mkdir -pv" \
+	xclip="xclip -sel clip" \
+	ffmpeg="ffmpeg -hide_banner" \
+
+# ls aliases
+alias ls="exa --icons"	 # alias ls to exa (with icons)
+alias la="ls -a"	 # show hidden files
+alias ll="ls -lh"	 # long format and human-readable sizes
+alias l="ll -a"		 # long format, all files
+alias lm='l | ${PAGER}'  # long format, all files, use pager
+alias le="ll -R"	 # long format, recursive
+alias lea="ll -Ra"	 # long format, recursive (hidden files)
+alias lk="ll -Sr"	 # long format, largest file size last
+alias lt="ll -mr"	 # long format, newest modification time last

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Simple notification to show some info about your system
+
+notify-send "🖥️ System Info" "🧠Memory Used: $(free -h | awk '/^Mem:/ {print $3}')
+
+🧠Memory Hogs (%):
+$(ps axch -o cmd:15,%mem --sort=-%mem| head)
+
+🖥 CPU Hogs (%):
+$(ps axch -o cmd:15,%cpu --sort=-%cpu | head)
+
+💻Uptime: $(uptime --pretty | sed -e 's/up //g' -e 's/ days/d/g' -e 's/ day/d/g' -e 's/ hours/h/g' -e 's/ hour/h/g' -e 's/ minutes/m/g' -e 's/, / /g')
+
+🏛️$(uname -r | sed "s/^//;s/^Kernel//")"
+
+#📦Updates: $((checkupdates; yay -Qua) | wc -l)"
